@@ -98,3 +98,15 @@ sys_toggle(void)
   toggle_flag ^= 1;
   return 1;
 }
+
+int
+sys_add(void)
+{
+  int a,b;
+  
+  // return error if can't fetch the arguments
+  if(argint(0, &a) < 0 || argint(1, &b) < 0)
+    return -1;
+
+  return (a+b);
+}
