@@ -89,3 +89,10 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int 
+sys_toggle(void)
+{
+  toggle_flag = 1^toggle_flag;
+  return 1;
+}
