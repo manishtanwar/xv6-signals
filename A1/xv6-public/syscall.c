@@ -104,6 +104,7 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_toggle(void);
+extern int toggle_flag;
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,11 +131,10 @@ static int (*syscalls[])(void) = {
 [SYS_toggle]  sys_toggle,
 };
 
-int toggle_flag = 1;
 const int NoSysCalls = 22;
 
-int system_call_count[NoSysCalls];
-char *system_call_names[NoSysCalls] = {"sys_fork", "sys_exit", "sys_wait", 
+int system_call_count[22];
+char *system_call_names[22] = {"sys_fork", "sys_exit", "sys_wait", 
 "sys_pipe", "sys_read", "sys_kill", "sys_exec", "sys_fstat", 
 "sys_chdir", "sys_dup", "sys_getpid", "sys_sbrk", "sys_sleep", 
 "sys_uptime", "sys_open", "sys_write", "sys_mknod", "sys_unlink", 
@@ -150,7 +150,9 @@ syscall(void)
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     
     system_call_count[num-1]++;
-    if(toggle_flag) cprintf("%s %d\n", system_call_names[num-1], system_call_count[num-1]);
+    
+    if(toggle_flag) 
+      cprintf("%s %d\n", system_call_names[num-1], system_call_count[num-1]);
 
     curproc->tf->eax = syscalls[num]();
   } else {

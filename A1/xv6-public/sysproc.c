@@ -90,9 +90,11 @@ sys_uptime(void)
   return xticks;
 }
 
+int toggle_flag = 1;
+
 int 
 sys_toggle(void)
 {
-  toggle_flag = 1^toggle_flag;
+  toggle_flag ^= 1;
   return 1;
 }
