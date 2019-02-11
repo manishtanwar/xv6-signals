@@ -537,7 +537,7 @@ procdump(void)
 int 
 sys_ps(){
   for(int i = 0; i < NPROC; i++){
-    if(ptable.proc[i].state == RUNNING){
+    if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
