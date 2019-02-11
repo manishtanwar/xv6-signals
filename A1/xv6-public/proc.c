@@ -532,3 +532,15 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+int 
+sys_ps(){
+  for(int i = 0; i < NPROC; i++){
+    if(ptable.proc[i].state == RUNNING){
+      cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
+    }
+  }
+  cprintf("here \n");
+  return 1;
+}
