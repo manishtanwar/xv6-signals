@@ -90,11 +90,28 @@ sys_uptime(void)
   return xticks;
 }
 
-int toggle_flag = 1;
+int toggle_flag = 0;
+#define NoSysCalls 25
+
+extern int system_call_count[NoSysCalls];
+extern char *system_call_names[NoSysCalls];
+
+int
+sys_print_count(void){
+  for(int i = 0 ; i < NoSysCalls; i++){
+    if(system_call_count[i] > 0)
+    cprintf("%s %d\n", system_call_names[i], system_call_count[i]);
+  }
+  return 1;
+}
 
 int 
 sys_toggle(void)
 {
+  if(toggle_flag == 0){
+    for(int i = 0; i < NoSysCalls; i++)
+      system_call_count[i] = 0;
+  }
   toggle_flag ^= 1;
   return 1;
 }
@@ -118,6 +135,5 @@ sys_add(void)
 //       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
 //     }
 //   }
-//   cprintf("here \n");
 //   return 1;
 // }

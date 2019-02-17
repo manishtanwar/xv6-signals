@@ -541,6 +541,5 @@ sys_ps(){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
-  cprintf("here \n");
   return 1;
 }
