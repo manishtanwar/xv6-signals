@@ -91,7 +91,7 @@ sys_uptime(void)
 }
 
 int toggle_flag = 0;
-#define NoSysCalls 25
+#define NoSysCalls 27
 
 extern int system_call_count[NoSysCalls];
 extern char *system_call_names[NoSysCalls];
@@ -128,12 +128,16 @@ sys_add(void)
   return (a+b);
 }
 
-// int 
-// sys_ps(){
-//   for(int i = 0; i < NPROC; i++){
-//     if(ptable.proc[i].state == RUNNING){
-//       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
-//     }
-//   }
-//   return 1;
-// }
+int 
+sys_ps(){
+  ps_print_list();
+  return 1;
+}
+
+int sys_send(){
+  return 1;
+}
+
+int sys_recv(){
+  return 1;
+}

@@ -120,6 +120,10 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+void			ps_print_list();
+// IPC Functions for unicast
+int 			send_msg(int sender_pid, int rec_pid, void *msg);
+int 			recv_msg(void* msg);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

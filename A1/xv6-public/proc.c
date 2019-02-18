@@ -534,13 +534,22 @@ procdump(void)
 }
 
 
-// The system call to print a list of all current running processes
-int 
-sys_ps(){
+// Function call to print a list of all current running processes
+void
+ps_print_list(){
   for(int i = 0; i < NPROC; i++){
     if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
+}
+
+int
+send_msg(int sender_pid, int rec_pid, void *msg){
+  return 1;
+}
+
+int
+recv_msg(void* msg){
   return 1;
 }
