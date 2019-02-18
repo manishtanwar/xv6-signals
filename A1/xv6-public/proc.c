@@ -534,6 +534,7 @@ procdump(void)
 }
 
 
+// The system call to print a list of all current running processes
 int 
 sys_ps(){
   for(int i = 0; i < NPROC; i++){
