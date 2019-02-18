@@ -135,9 +135,18 @@ sys_ps(){
 }
 
 int sys_send(){
-  return 1;
+  int sender_pid, rec_pid;
+  void* msg;
+  // fetch the arguments
+  if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg) < 0)
+    return -1;
+  return send_msg(sender_pid, rec_pid, msg);
 }
 
 int sys_recv(){
-  return 1;
+  void* msg;
+  // fetch the arguments
+  if(argptr(1, &msg) < 0)
+    return -1;
+  return recv_msg(msg);
 }
