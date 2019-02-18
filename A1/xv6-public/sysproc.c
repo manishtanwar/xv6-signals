@@ -136,7 +136,7 @@ sys_ps(){
 
 int sys_send(){
   int sender_pid, rec_pid;
-  void* msg;
+  char* msg;
   // fetch the arguments
   if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg) < 0)
     return -1;
@@ -144,7 +144,7 @@ int sys_send(){
 }
 
 int sys_recv(){
-  void* msg;
+  char* msg;
   // fetch the arguments
   if(argptr(1, &msg) < 0)
     return -1;
