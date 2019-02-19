@@ -5,23 +5,23 @@ make fs.img
 make
 
 # make qemu 
-# echo "Running..1"
-# ./test_assig1.sh assig1_1|grep -i 'sys_'|sed 's/$ //g'|sort > res_assig1_1
+echo "Running..1"
+./test_assig1.sh assig1_1|grep -i 'sys_'|sed 's/$ //g'|sort > res_assig1_1
 
-# echo "Running..2"
-# ./test_assig1.sh assig1_2|grep -i 'sys_'|sed 's/$ //g'|sort > res_assig1_2
+echo "Running..2"
+./test_assig1.sh assig1_2|grep -i 'sys_'|sed 's/$ //g'|sort > res_assig1_2
 
-# echo "Running..3"
-# ./test_assig1.sh assig1_3|grep -i Sum|sed 's/$ //g'|sort > res_assig1_3
+echo "Running..3"
+./test_assig1.sh assig1_3|grep -i Sum|sed 's/$ //g'|sort > res_assig1_3
 
-# echo "Running..4"
-# ./test_assig1.sh assig1_4|grep -i Sum|sed 's/$ //g'|sort > res_assig1_4
+echo "Running..4"
+./test_assig1.sh assig1_4|grep -i Sum|sed 's/$ //g'|sort > res_assig1_4
 
-# echo "Running..5"
-# ./test_assig1.sh assig1_5|grep -i pid|sed 's/$ //g'|sort > res_assig1_5
+echo "Running..5"
+./test_assig1.sh assig1_5|grep -i pid|sed 's/$ //g'|sort > res_assig1_5
 
-# echo "Running..6"
-# ./test_assig1.sh assig1_6|grep -i pid|sed 's/$ //g'|sort > res_assig1_6
+echo "Running..6"
+./test_assig1.sh assig1_6|grep -i pid|sed 's/$ //g'|sort > res_assig1_6
 
 echo "Running..7"
 ./test_assig1.sh assig1_7|grep -i 'PARENT\|CHILD'|sed 's/$ //g'|sort> res_assig1_7
@@ -36,7 +36,7 @@ echo "Running..7"
 check_test=7
 total_test=0
 
-for ((t=7;t<=$check_test;++t))
+for ((t=1;t<=$check_test;++t))
 do
 	echo -n "Test #${t}: "
 

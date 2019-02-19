@@ -24,7 +24,7 @@ if { $argsCount < 1} {
     exit 1
 } 
 set force_conservative 0  ;# set to 1 to force conservative mode even if
-			  ;# script wasnt run conservatively originally
+			  ;# script wasn't run conservatively originally
 if {$force_conservative} {
 	set send_slow {1 .1}
 	proc send {ignore arg} {
