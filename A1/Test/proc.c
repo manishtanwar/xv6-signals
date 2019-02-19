@@ -533,13 +533,91 @@ procdump(void)
   }
 }
 
+// Added Code:
 
-int 
-sys_ps(){
+// Function call to print a list of all current running processes
+void
+ps_print_list(){
   for(int i = 0; i < NPROC; i++){
     if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
-  return 1;
+}
+
+// Unicast:
+
+#define MSGSIZE 8
+#define BUFFER_SIZE 32
+
+// A message queue for every receiver
+struct msg_queue{
+  struct spinlock lock;
+  char data[BUFFER_SIZE][MSGSIZE];
+  int start;
+  int end;
+  int channel;
+  
+  // constructor
+  // msg_queue() : start(0), end(0) {}
+
+}Queue[NPROC];
+
+
+int 
+get_process_id(int pid){
+  for(int i = 0 ; i < NPROC; i++){
+    if(ptable.proc[i].pid == pid)
+      return i;
+  }
+  return -1;
+}
+
+int
+send_msg(int sender_pid, int rec_pid, char *msg){
+  int id = get_process_id(rec_pid);
+  if(id == -1) return -1;
+  acquire(&Queue[id].lock);
+  
+  if((Queue[id].end + 1) % BUFFER_SIZE == Queue[id].start){
+    cprintf("Buffer is full\n");
+    release(&Queue[id].lock);
+    return -1;
+  }
+
+  for(int i = 0; i < MSGSIZE; i++){
+    Queue[id].data[Queue[id].end][i] = msg[i];
+  }
+
+  Queue[id].end++;
+  Queue[id].end %= BUFFER_SIZE;
+
+  wakeup(&Queue[id].channel);
+  release(&Queue[id].lock);
+  return 0;
+}
+
+int
+recv_msg(char* msg){
+  int rec_id = myproc()->pid;
+  int id = get_process_id(rec_id);
+  if(id == -1) return -1;
+  acquire(&Queue[id].lock);
+  
+  while(1){
+    if(Queue[id].end == Queue[id].start){
+      sleep(&Queue[id].channel, &Queue[id].lock);
+    }
+    else{
+      Queue[id].end = (Queue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+      
+      for(int i = 0; i < MSGSIZE; i++){
+        msg[i] = Queue[id].data[Queue[id].end][i];
+      }
+
+      release(&Queue[id].lock);
+      break;
+    }
+  }
+  return 0;
 }

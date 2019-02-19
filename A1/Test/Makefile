@@ -191,6 +191,7 @@ UPROGS=\
 	_assig1_4\
 	_assig1_5\
 	_assig1_6\
+	_assig1_7\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
@@ -256,9 +257,16 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # after running make dist, probably want to
 # rename it to rev0 or rev1 or so on and then
 # check in that version.
+# assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c\
+# assig1_1.c\
+# assig1_2.c\
+# assig1_3.c\
+# assig1_4.c\
+# assig1_5.c\
+# assig1_6.c\
 
 EXTRA=\
-	_assig1_1.c _assig1_2.c _assig1_3.c _assig1_4.c _assig1_5.c _assig1_6.c\
+	assig1_1.c assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c\
 	user_ps.c\
 	user_add.c\
 	user_toggle.c print_count.c\

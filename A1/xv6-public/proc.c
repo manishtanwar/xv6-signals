@@ -554,10 +554,15 @@ ps_print_list(){
 struct msg_queue{
   struct spinlock lock;
   char data[BUFFER_SIZE][MSGSIZE];
-  int start = 0;
-  int end = 0;
-  int channel = 0;
+  int start;
+  int end;
+  int channel;
+  
+  // constructor
+  // msg_queue() : start(0), end(0) {}
+
 }Queue[NPROC];
+
 
 int 
 get_process_id(int pid){
@@ -572,8 +577,7 @@ int
 send_msg(int sender_pid, int rec_pid, char *msg){
   int id = get_process_id(rec_pid);
   if(id == -1) return -1;
-  
-  acquire(&Queue[id].lock);  
+  acquire(&Queue[id].lock);
   
   if((Queue[id].end + 1) % BUFFER_SIZE == Queue[id].start){
     cprintf("Buffer is full\n");
@@ -584,7 +588,7 @@ send_msg(int sender_pid, int rec_pid, char *msg){
   for(int i = 0; i < MSGSIZE; i++){
     Queue[id].data[Queue[id].end][i] = msg[i];
   }
-  
+
   Queue[id].end++;
   Queue[id].end %= BUFFER_SIZE;
 
@@ -595,22 +599,21 @@ send_msg(int sender_pid, int rec_pid, char *msg){
 
 int
 recv_msg(char* msg){
-  int rec_id = getpid();
-  int id = get_process_id(rec_pid);
+  int rec_id = myproc()->pid;
+  int id = get_process_id(rec_id);
   if(id == -1) return -1;
-
-  acquire(Queue[id].lock);
+  acquire(&Queue[id].lock);
   
   while(1){
     if(Queue[id].end == Queue[id].start){
       sleep(&Queue[id].channel, &Queue[id].lock);
     }
-
     else{
+      Queue[id].end = (Queue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+      
       for(int i = 0; i < MSGSIZE; i++){
         msg[i] = Queue[id].data[Queue[id].end][i];
       }
-      Queue[id].end = (Queue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
 
       release(&Queue[id].lock);
       break;

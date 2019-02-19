@@ -18,14 +18,13 @@
 # character to toggle this mode off and on.
 
 puts "No of Command Line Arguments : [llength $argv]"
-puts "hey"
 set argsCount [llength $argv];
 if { $argsCount < 1} {
     puts "Need a user_function name. \n";
     exit 1
-}
-set force_conservative 0  ; # set to 1 to force conservative mode even if
-			  ; # script wasnt run conservatively originally
+} 
+set force_conservative 0  ;# set to 1 to force conservative mode even if
+			  ;# script wasnt run conservatively originally
 if {$force_conservative} {
 	set send_slow {1 .1}
 	proc send {ignore arg} {

@@ -134,19 +134,27 @@ sys_ps(){
   return 1;
 }
 
+#define MSGSIZE 8
+
 int sys_send(){
   int sender_pid, rec_pid;
   char* msg;
+  char* physical_address_msg;
   // fetch the arguments
-  if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg) < 0)
+  if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
-  return send_msg(sender_pid, rec_pid, msg);
+  if(fetchstr((uint)msg, &physical_address_msg) < 0)
+    return -1;
+  return send_msg(sender_pid, rec_pid, physical_address_msg);
 }
 
 int sys_recv(){
   char* msg;
+  char* physical_address_msg;
   // fetch the arguments
-  if(argptr(1, &msg) < 0)
+  if(argptr(0, &msg, MSGSIZE) < 0)
     return -1;
-  return recv_msg(msg);
+  if(fetchstr((uint)msg, &physical_address_msg) < 0)
+    return -1;
+  return recv_msg(physical_address_msg);
 }
