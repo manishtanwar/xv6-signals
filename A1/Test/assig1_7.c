@@ -25,6 +25,7 @@ int main(void)
 		msg_child = "P";
 		send(getpid(),cid,msg_child);	
 		printf(1,"1 PARENT: msg sent is: %s \n", msg_child );
+		
 		free(msg_child);
 	}
 	

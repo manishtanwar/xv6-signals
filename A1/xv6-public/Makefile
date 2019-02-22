@@ -187,7 +187,7 @@ UPROGS=\
 	_user_ps\
 
 fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+	./mkfs fs.img README arr $(UPROGS)
 
 -include *.d
 

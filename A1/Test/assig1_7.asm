@@ -80,6 +80,7 @@ int main(void)
   8c:	68 07 08 00 00       	push   $0x807
   91:	6a 01                	push   $0x1
   93:	e8 e8 03 00 00       	call   480 <printf>
+		
 		free(msg_child);
   98:	c7 04 24 05 08 00 00 	movl   $0x805,(%esp)
   9f:	e8 ac 05 00 00       	call   650 <free>
