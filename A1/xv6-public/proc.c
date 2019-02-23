@@ -545,7 +545,6 @@ ps_print_list(){
 }
 
 // Unicast:
-#define BUFFER_SIZE 32
 
 // A message queue for every receiver
 struct msg_queue{
@@ -554,7 +553,7 @@ struct msg_queue{
   int start;
   int end;
   int channel;
-}Queue[NPROC];
+}MsgQueue[NPROC];
 
 int 
 get_process_id(int pid){
@@ -569,23 +568,23 @@ int
 send_msg(int sender_pid, int rec_pid, char *msg){
   int id = get_process_id(rec_pid);
   if(id == -1) return -1;
-  acquire(&Queue[id].lock);
+  acquire(&MsgQueue[id].lock);
   
-  if((Queue[id].end + 1) % BUFFER_SIZE == Queue[id].start){
-    cprintf("Buffer is full\n");
-    release(&Queue[id].lock);
+  if((MsgQueue[id].end + 1) % BUFFER_SIZE == MsgQueue[id].start){
+    // cprintf("Buffer is full\n");
+    release(&MsgQueue[id].lock);
     return -1;
   }
 
   for(int i = 0; i < MSGSIZE; i++){
-    Queue[id].data[Queue[id].end][i] = msg[i];
+    MsgQueue[id].data[MsgQueue[id].end][i] = msg[i];
   }
 
-  Queue[id].end++;
-  Queue[id].end %= BUFFER_SIZE;
+  MsgQueue[id].end++;
+  MsgQueue[id].end %= BUFFER_SIZE;
 
-  wakeup(&Queue[id].channel);
-  release(&Queue[id].lock);
+  wakeup(&MsgQueue[id].channel);
+  release(&MsgQueue[id].lock);
   return 0;
 }
 
@@ -594,39 +593,41 @@ recv_msg(char* msg){
   int rec_id = myproc()->pid;
   int id = get_process_id(rec_id);
   if(id == -1) return -1;
-  acquire(&Queue[id].lock);
+  acquire(&MsgQueue[id].lock);
   
   while(1){
-    if(Queue[id].end == Queue[id].start){
-      sleep(&Queue[id].channel, &Queue[id].lock);
+    if(MsgQueue[id].end == MsgQueue[id].start){
+      sleep(&MsgQueue[id].channel, &MsgQueue[id].lock);
     }
     else{
-      Queue[id].end = (Queue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+      MsgQueue[id].end = (MsgQueue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
       
       for(int i = 0; i < MSGSIZE; i++){
-        msg[i] = Queue[id].data[Queue[id].end][i];
+        msg[i] = MsgQueue[id].data[MsgQueue[id].end][i];
       }
 
-      release(&Queue[id].lock);
+      release(&MsgQueue[id].lock);
       break;
     }
   }
   return 0;
 }
 
-
-int  sig_set(int sig_num, sighandler_t handler){
+int sig_set(int sig_num, sighandler_t handler){
+  if(sig_num < 0 || sig_num >= NoSigHandlers)
+    return -1;
+  myproc()->sig_htable[sig_num] = handler;
+  return 0;
+}
+int sig_send(int sig_num, char *sig_arg){
   return 1;
 }
-int  sig_send(int sig_num, void *sig_arg){
+int sig_pause(void){
   return 1;
 }
-int  sig_pause(void){
+int sig_ret(void){
   return 1;
 }
-int  sig_ret(void){
-  return 1;
-}
-int  send_multi(int sender_pid, int rec_pids[], void *msg){
+int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
   return 1;
 }

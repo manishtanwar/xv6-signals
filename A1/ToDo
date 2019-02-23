@@ -1,0 +1,4 @@
+1. toggle flag using lock ?
+2. increase count using lock ?
+3. ps - read ptable after acquiring lock
+4. msg queue implementation - acquire lock for ptable

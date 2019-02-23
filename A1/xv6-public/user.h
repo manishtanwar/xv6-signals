@@ -29,7 +29,8 @@ int add(int a,int b);
 int ps(void);
 int send(int sender_pid, int rec_pid, void *msg);
 int recv(void *msg);
-typedef void (*sighandler_t)(void*);
+
+// sizeof(sighandler_t) = 4 byte
 int sig_set(int sig_num, sighandler_t handler);
 int sig_send(int sig_num, void *sig_arg);
 int sig_pause(void);

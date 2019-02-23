@@ -34,6 +34,50 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+struct custom_trapframe {
+  // registers as pushed by pusha
+  uint edi;
+  uint esi;
+  uint ebp;
+  uint oesp;      // useless & ignored
+  uint ebx;
+  uint edx;
+  uint ecx;
+  uint eax;
+
+  // rest of trap frame
+  ushort gs;
+  ushort padding1;
+  ushort fs;
+  ushort padding2;
+  ushort es;
+  ushort padding3;
+  ushort ds;
+  ushort padding4;
+  uint trapno;
+
+  // below here defined by x86 hardware
+  uint err;
+  uint eip;
+  ushort cs;
+  ushort padding5;
+  uint eflags;
+
+  // below here only when crossing rings, such as from user to kernel
+  uint esp;
+  ushort ss;
+  ushort padding6;
+};
+
+// A message queue for every receiver
+struct sig_queue{
+  struct spinlock lock;
+  char data[SIG_QUE_SIZE][SIG_SIZE];
+  int start;
+  int end;
+};
+
+#define NoSigHandlers 4 // Number of signal handlers(0,1,2,3)
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -49,6 +93,11 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+
+  // signal handling data:
+  sighandler_t sig_htable[NoSigHandlers]; // table of function pointers of different signal handlers
+  int sig_handler_busy;                   // is the process executing the signal handler
+  struct sig_queue SigQueue // Queue for pending signals
 };
 
 // Process memory is laid out contiguously, low addresses first:

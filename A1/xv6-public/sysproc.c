@@ -167,12 +167,27 @@ sys_recv(void){
 
 int
 sys_sig_set(void){
-  return 0;
+  int sig_num;
+  char* handler_char;
+  sighandler_t handler;
+  // fetch the arguments
+  if(argint(0, &sig_num) < 0 || argptr(2, &handler_char, 4) < 0)
+    return -1;
+  handler = (sighandler_t) handler_char;
+  return sig_set(sig_num, handler);
 }
 
 int
 sys_sig_send(void){
-  return 0;
+  int sig_num;
+  char *sig_arg;
+  char *physical_address_sig_arg;
+  // fetch the arguments
+  if(argint(0, &sig_num) < 0 || argptr(2, &sig_arg, MSGSIZE) < 0)
+    return -1;
+  if(fetchstr((uint)sig_arg, &physical_address_sig_arg) < 0)
+    return -1;
+  return sig_send(sig_num, physical_address_sig_arg);
 }
 
 int
@@ -188,14 +203,20 @@ sys_sig_ret(void){
 // IPC multicast:
 int
 sys_send_multi(void){
-  int sender_pid, *rec_pids;
+  char *rec_pids_char;
+  int sender_pid, *rec_pids, rec_length;
   char* msg;
   char* physical_address_msg;
+
   // fetch the arguments
-  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids) < 0 || argptr(2, &msg, MSGSIZE) < 0)
+  if(argint(3, &rec_length) < 0)
+    return -1;
+  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids_char, rec_length) < 0
+   || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
   if(fetchstr((uint)msg, &physical_address_msg) < 0)
     return -1;
-  return send_msg(sender_pid, rec_pids, physical_address_msg);
-  return 1;
+
+  rec_pids = (int *)rec_pids_char;
+  return send_multi(sender_pid, rec_pids, physical_address_msg, rec_length);
 }
