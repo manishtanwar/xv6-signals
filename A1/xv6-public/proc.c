@@ -614,11 +614,12 @@ recv_msg(char* msg){
       sleep(&MsgQueue[id].channel, &MsgQueue[id].lock);
     }
     else{
-      MsgQueue[id].end = (MsgQueue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
       int i;
       for(i = 0; i < MSGSIZE; i++){
-        msg[i] = MsgQueue[id].data[MsgQueue[id].end][i];
+        msg[i] = MsgQueue[id].data[MsgQueue[id].start][i];
       }
+      MsgQueue[id].start++;
+      MsgQueue[id].start %= BUFFER_SIZE;
 
       release(&MsgQueue[id].lock);
       break;
