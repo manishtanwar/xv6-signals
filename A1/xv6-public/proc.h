@@ -1,4 +1,4 @@
-
+#include "spinlock.h"
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -72,8 +72,7 @@ struct custom_trapframe {
 
 // A message queue for every receiver
 struct sig_queue{
-  // struct spinlock lock; 
-  // can't declare lock here so made a separate array of locks in proc.c
+  struct spinlock lock; 
   char data[SIG_QUE_SIZE][SIG_SIZE];
   int start;
   int end;

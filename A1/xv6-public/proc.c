@@ -564,9 +564,6 @@ struct msg_queue{
   int channel;
 }MsgQueue[NPROC];
 
-// Locks for Signal Queues in Processes(could not declare it in proc.h)
-struct spinlock Lock_Sig_Queue[NPROC];
-
 int 
 get_process_id(int pid){
   int i;

@@ -180,7 +180,7 @@ sys_sig_send(void){
   // fetch the arguments
   if(argint(0, &dest_pid), argint(1, &sig_num) < 0 || argptr(2, &sig_arg, MSGSIZE) < 0)
     return -1;
-  return sig_send(sig_num, sig_arg);
+  return sig_send(dest_pid, sig_num, sig_arg);
 }
 
 int
