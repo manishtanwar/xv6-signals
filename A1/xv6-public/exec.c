@@ -100,6 +100,7 @@ exec(char *path, char **argv)
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
 
+  // ****added**************
   // Initializing the sig handler table of the process(which was copied from parent in fork)
   for(i = 0; i < NoSigHandlers; i++)
     curproc->sig_htable[i] = 0;

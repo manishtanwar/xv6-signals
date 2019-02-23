@@ -112,6 +112,7 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  // ****added**************
   // Initialize data for signal handling
   p->sig_handler_busy = 0;
   p->SigQueue.start = p->SigQueue.end = 0;
@@ -205,6 +206,7 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
+  // ****added**************
   // Copy signal handler functions' pointers from parent
   for(i = 0; i < NoSigHandlers; i++)
     np->sig_htable[i] = curproc->sig_htable[i];
@@ -554,7 +556,7 @@ ps_print_list(){
   }
 }
 
-// Unicast:
+// ************ Unicasting ******************
 
 // A message queue for every receiver
 struct msg_queue{
@@ -625,6 +627,8 @@ recv_msg(char* msg){
   return 0;
 }
 
+// *********** Signals ****************
+
 int sig_set(int sig_num, sighandler_t handler){
   if(sig_num < 0 || sig_num >= NoSigHandlers)
     return -1;
@@ -635,7 +639,7 @@ int sig_set(int sig_num, sighandler_t handler){
 int sig_send(int dest_pid, int sig_num, char *sig_arg){
   if(sig_num < 0 || sig_num >= NoSigHandlers)
     return -1;
-  int id = get_process_id(rec_id);
+  int id = get_process_id(dest_pid);
   if(id == -1) return -1;
 
   struct sig_queue *SigQueue = &ptable[id].SigQueue;
@@ -675,10 +679,18 @@ int sig_pause(void){
   return 0;
 }
 
+// due
 int sig_ret(void){
   return 1;
 }
+  
+int check_pending_signals(){
+  
+}
 
+// ********** multicasting ***************
+
+// due
 int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
   return 1;
 }
