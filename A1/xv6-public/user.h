@@ -32,7 +32,7 @@ int recv(void *msg);
 
 // sizeof(sighandler_t) = 4 byte
 int sig_set(int sig_num, sighandler_t handler);
-int sig_send(int sig_num, void *sig_arg);
+int sig_send(int dest_pid, int sig_num, void *sig_arg);
 int sig_pause(void);
 int sig_ret(void);
 int send_multi(int sender_pid, int rec_pids[], void *msg, int rec_length);

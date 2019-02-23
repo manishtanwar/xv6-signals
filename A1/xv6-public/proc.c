@@ -630,15 +630,21 @@ int sig_set(int sig_num, sighandler_t handler){
   myproc()->sig_htable[sig_num] = handler;
   return 0;
 }
-int sig_send(int sig_num, char *sig_arg){
+int sig_send(int dest_pid, int sig_num, char *sig_arg){
+  if(sig_num < 0 || sig_num >= NoSigHandlers)
+    return -1;
+
   return 1;
 }
+
 int sig_pause(void){
   return 1;
 }
+
 int sig_ret(void){
   return 1;
 }
+
 int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
   return 1;
 }

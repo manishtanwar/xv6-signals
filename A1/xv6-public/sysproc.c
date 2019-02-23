@@ -142,25 +142,19 @@ int
 sys_send(void){
   int sender_pid, rec_pid;
   char* msg;
-  char* physical_address_msg;
   // fetch the arguments
   if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)msg, &physical_address_msg) < 0)
-    return -1;
-  return send_msg(sender_pid, rec_pid, physical_address_msg);
+  return send_msg(sender_pid, rec_pid, msg);
 }
 
 int 
 sys_recv(void){
   char* msg;
-  char* physical_address_msg;
   // fetch the arguments
   if(argptr(0, &msg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)msg, &physical_address_msg) < 0)
-    return -1;
-  return recv_msg(physical_address_msg);
+  return recv_msg(msg);
 }
 
 // Signals:
@@ -171,7 +165,7 @@ sys_sig_set(void){
   char* handler_char;
   sighandler_t handler;
   // fetch the arguments
-  if(argint(0, &sig_num) < 0 || argptr(2, &handler_char, 4) < 0)
+  if(argint(0, &sig_num) < 0 || argptr(1, &handler_char, 4) < 0)
     return -1;
   handler = (sighandler_t) handler_char;
   return sig_set(sig_num, handler);
@@ -179,15 +173,12 @@ sys_sig_set(void){
 
 int
 sys_sig_send(void){
-  int sig_num;
+  int sig_num, dest_pid;
   char *sig_arg;
-  char *physical_address_sig_arg;
   // fetch the arguments
-  if(argint(0, &sig_num) < 0 || argptr(2, &sig_arg, MSGSIZE) < 0)
+  if(argint(0, &dest_pid), argint(1, &sig_num) < 0 || argptr(2, &sig_arg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)sig_arg, &physical_address_sig_arg) < 0)
-    return -1;
-  return sig_send(sig_num, physical_address_sig_arg);
+  return sig_send(sig_num, sig_arg);
 }
 
 int
@@ -206,7 +197,6 @@ sys_send_multi(void){
   char *rec_pids_char;
   int sender_pid, *rec_pids, rec_length;
   char* msg;
-  char* physical_address_msg;
 
   // fetch the arguments
   if(argint(3, &rec_length) < 0)
@@ -214,9 +204,7 @@ sys_send_multi(void){
   if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids_char, rec_length) < 0
    || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)msg, &physical_address_msg) < 0)
-    return -1;
 
   rec_pids = (int *)rec_pids_char;
-  return send_multi(sender_pid, rec_pids, physical_address_msg, rec_length);
+  return send_multi(sender_pid, rec_pids, msg, rec_length);
 }
