@@ -545,7 +545,8 @@ procdump(void)
 // Function call to print a list of all current running processes
 void
 ps_print_list(){
-  for(int i = 0; i < NPROC; i++){
+  int i;
+  for(i = 0; i < NPROC; i++){
     if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
@@ -568,7 +569,8 @@ struct spinlock Lock_Sig_Queue[NPROC];
 
 int 
 get_process_id(int pid){
-  for(int i = 0 ; i < NPROC; i++){
+  int i;
+  for(i = 0 ; i < NPROC; i++){
     if(ptable.proc[i].pid == pid)
       return i;
   }
@@ -587,7 +589,8 @@ send_msg(int sender_pid, int rec_pid, char *msg){
     return -1;
   }
 
-  for(int i = 0; i < MSGSIZE; i++){
+  int i;
+  for(i = 0; i < MSGSIZE; i++){
     MsgQueue[id].data[MsgQueue[id].end][i] = msg[i];
   }
 
@@ -612,8 +615,8 @@ recv_msg(char* msg){
     }
     else{
       MsgQueue[id].end = (MsgQueue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
-      
-      for(int i = 0; i < MSGSIZE; i++){
+      int i;
+      for(i = 0; i < MSGSIZE; i++){
         msg[i] = MsgQueue[id].data[MsgQueue[id].end][i];
       }
 

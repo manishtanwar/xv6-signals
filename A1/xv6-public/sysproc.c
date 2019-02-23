@@ -100,7 +100,8 @@ extern char *system_call_names[NoSysCalls];
 
 int
 sys_print_count(void){
-  for(int i = 0 ; i < NoSysCalls; i++){
+  int i;
+  for(i = 0 ; i < NoSysCalls; i++){
     if(system_call_count[i] > 0)
     cprintf("%s %d\n", system_call_names[i], system_call_count[i]);
   }
@@ -111,7 +112,8 @@ int
 sys_toggle(void)
 {
   if(toggle_flag == 0){
-    for(int i = 0; i < NoSysCalls; i++)
+    int i;
+    for(i = 0; i < NoSysCalls; i++)
       system_call_count[i] = 0;
   }
   toggle_flag ^= 1;
