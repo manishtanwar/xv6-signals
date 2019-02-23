@@ -129,9 +129,9 @@ int 			recv_msg(char* msg);
 typedef void (*sighandler_t)(void*);
 int 			sig_set(int sig_num, sighandler_t handler);
 int 			sig_send(int sig_num, void *sig_arg);
-int 			sig_pause1(void);
+int 			sig_pause(void);
 int 			sig_ret(void);
-int 			send_multi(int sender_pid, int rec_pids[], void *msg);
+int 			send_multi(int sender_pid, int rec_pids[], void *msg, int rec_length);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

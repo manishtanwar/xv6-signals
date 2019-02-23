@@ -621,7 +621,7 @@ int  sig_set(int sig_num, sighandler_t handler){
 int  sig_send(int sig_num, void *sig_arg){
   return 1;
 }
-int  sig_pause1(void){
+int  sig_pause(void){
   return 1;
 }
 int  sig_ret(void){

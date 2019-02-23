@@ -177,7 +177,7 @@ sys_sig_send(void){
 
 int
 sys_sig_pause(void){
-  return sig_pause1();
+  return sig_pause();
 }
 
 int
@@ -186,17 +186,16 @@ sys_sig_ret(void){
 }
 
 // IPC multicast:
-
 int
 sys_send_multi(void){
-  // int sender_pid, *rec_pids;
-  // char* msg;
-  // char* physical_address_msg;
-  // // fetch the arguments
-  // if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids) < 0 || argptr(2, &msg, MSGSIZE) < 0)
-  //   return -1;
-  // if(fetchstr((uint)msg, &physical_address_msg) < 0)
-  //   return -1;
-  // return send_msg(sender_pid, rec_pids, physical_address_msg);
+  int sender_pid, *rec_pids;
+  char* msg;
+  char* physical_address_msg;
+  // fetch the arguments
+  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids) < 0 || argptr(2, &msg, MSGSIZE) < 0)
+    return -1;
+  if(fetchstr((uint)msg, &physical_address_msg) < 0)
+    return -1;
+  return send_msg(sender_pid, rec_pids, physical_address_msg);
   return 1;
 }
