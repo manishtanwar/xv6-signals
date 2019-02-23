@@ -72,8 +72,9 @@ struct custom_trapframe {
 
 // A message queue for every receiver
 struct sig_queue{
-  struct spinlock lock; 
-  char data[SIG_QUE_SIZE][SIG_SIZE];
+  struct spinlock lock;
+  char sig_arg[SIG_QUE_SIZE][MSGSIZE];
+  int sig_num_list[SIG_QUE_SIZE];
   int start;
   int end;
 };

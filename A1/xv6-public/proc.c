@@ -630,11 +630,34 @@ int sig_set(int sig_num, sighandler_t handler){
   myproc()->sig_htable[sig_num] = handler;
   return 0;
 }
+
 int sig_send(int dest_pid, int sig_num, char *sig_arg){
   if(sig_num < 0 || sig_num >= NoSigHandlers)
     return -1;
+  int id = get_process_id(rec_id);
+  if(id == -1) return -1;
 
-  return 1;
+  struct sig_queue *SigQueue = &ptable[id].SigQueue;
+
+  acquire(&SigQueue->lock);
+
+  if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
+    // queue is full
+    release(SigQueue->lock);
+    return -1;
+  }
+
+  // copy the data in queue
+  SigQueue->sig_num_list[end] = sig_num;
+  int i;
+  for(i = 0; i < MSGSIZE; i++)
+    SigQueue->sig_arg[end][i] = sig_arg[i];
+
+  SigQueue->end++;
+  SigQueue->end %= SIG_QUE_SIZE;
+
+  release(SigQueue->lock);
+  return 0;
 }
 
 int sig_pause(void){
