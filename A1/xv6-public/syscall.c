@@ -109,6 +109,9 @@ extern int sys_add(void);
 extern int sys_ps(void);
 extern int sys_send(void);
 extern int sys_recv(void);
+extern int sys_send_sig(void);
+extern int sys_sig_pause(void);
+extern int sys_sig_ret(void);
 
 extern int toggle_flag;
 
@@ -140,9 +143,12 @@ static int (*syscalls[])(void) = {
 [SYS_ps]      sys_ps,
 [SYS_send]    sys_send,
 [SYS_recv]    sys_recv,
+[SYS_send_sig]sys_send_sig,
+[SYS_sig_pause]sys_sig_pause,
+[SYS_sig_ret] sys_sig_ret,
 };
 
-#define NoSysCalls 27
+#define NoSysCalls 30
 
 int system_call_count[NoSysCalls];
 char *system_call_names[NoSysCalls] = {"sys_fork", "sys_exit", "sys_wait", 
@@ -150,7 +156,7 @@ char *system_call_names[NoSysCalls] = {"sys_fork", "sys_exit", "sys_wait",
 "sys_chdir", "sys_dup", "sys_getpid", "sys_sbrk", "sys_sleep", 
 "sys_uptime", "sys_open", "sys_write", "sys_mknod", "sys_unlink", 
 "sys_link", "sys_mkdir", "sys_close", "sys_print_count", "sys_toggle", 
-"sys_add", "sys_ps", "sys_send", "sys_recv"};
+"sys_add", "sys_ps", "sys_send", "sys_recv", "sys_send_sig", "sys_sig_pause", "sys_sig_ret"};
 
 void
 syscall(void)

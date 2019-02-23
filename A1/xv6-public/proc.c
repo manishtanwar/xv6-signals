@@ -546,7 +546,6 @@ ps_print_list(){
 }
 
 // Unicast:
-
 #define MSGSIZE 8
 #define BUFFER_SIZE 32
 
@@ -557,10 +556,6 @@ struct msg_queue{
   int start;
   int end;
   int channel;
-  
-  // constructor
-  // msg_queue() : start(0), end(0) {}
-
 }Queue[NPROC];
 
 
