@@ -90,6 +90,8 @@ sys_uptime(void)
   return xticks;
 }
 
+// added functions:
+
 int toggle_flag = 0;
 #define NoSysCalls 27
 
@@ -129,14 +131,15 @@ sys_add(void)
 }
 
 int 
-sys_ps(){
+sys_ps(void){
   ps_print_list();
   return 1;
 }
 
-#define MSGSIZE 8
+// IPC unicast:
 
-int sys_send(){
+int 
+sys_send(void){
   int sender_pid, rec_pid;
   char* msg;
   char* physical_address_msg;
@@ -148,7 +151,8 @@ int sys_send(){
   return send_msg(sender_pid, rec_pid, physical_address_msg);
 }
 
-int sys_recv(){
+int 
+sys_recv(void){
   char* msg;
   char* physical_address_msg;
   // fetch the arguments
@@ -157,4 +161,42 @@ int sys_recv(){
   if(fetchstr((uint)msg, &physical_address_msg) < 0)
     return -1;
   return recv_msg(physical_address_msg);
+}
+
+// Signals:
+
+int
+sys_sig_set(void){
+  return 0;
+}
+
+int
+sys_sig_send(void){
+  return 0;
+}
+
+int
+sys_sig_pause(void){
+  return sig_pause1();
+}
+
+int
+sys_sig_ret(void){
+  return sig_ret();
+}
+
+// IPC multicast:
+
+int
+sys_send_multi(void){
+  // int sender_pid, *rec_pids;
+  // char* msg;
+  // char* physical_address_msg;
+  // // fetch the arguments
+  // if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids) < 0 || argptr(2, &msg, MSGSIZE) < 0)
+  //   return -1;
+  // if(fetchstr((uint)msg, &physical_address_msg) < 0)
+  //   return -1;
+  // return send_msg(sender_pid, rec_pids, physical_address_msg);
+  return 1;
 }

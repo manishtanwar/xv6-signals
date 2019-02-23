@@ -351,7 +351,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -533,7 +532,7 @@ procdump(void)
   }
 }
 
-// Added Code:
+// Added Functions:
 
 // Function call to print a list of all current running processes
 void
@@ -546,7 +545,6 @@ ps_print_list(){
 }
 
 // Unicast:
-#define MSGSIZE 8
 #define BUFFER_SIZE 32
 
 // A message queue for every receiver
@@ -557,7 +555,6 @@ struct msg_queue{
   int end;
   int channel;
 }Queue[NPROC];
-
 
 int 
 get_process_id(int pid){
@@ -615,4 +612,21 @@ recv_msg(char* msg){
     }
   }
   return 0;
+}
+
+
+int  sig_set(int sig_num, sighandler_t handler){
+  return 1;
+}
+int  sig_send(int sig_num, void *sig_arg){
+  return 1;
+}
+int  sig_pause1(void){
+  return 1;
+}
+int  sig_ret(void){
+  return 1;
+}
+int  send_multi(int sender_pid, int rec_pids[], void *msg){
+  return 1;
 }
