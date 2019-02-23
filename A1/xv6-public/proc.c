@@ -112,6 +112,10 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  // Initialize data for signal handling
+  p->sig_handler_busy = 0;
+  p->SigQueue.start = p->SigQueue.end = 0;
+
   return p;
 }
 
@@ -199,6 +203,10 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+
+  // Copy signal handler functions' pointers from parent
+  for(i = 0; i < NoSigHandlers; i++)
+    np->sig_htable[i] = curproc->sig_htable[i];
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;

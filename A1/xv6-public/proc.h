@@ -1,3 +1,5 @@
+// #include "spinlock.h"
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -71,7 +73,7 @@ struct custom_trapframe {
 
 // A message queue for every receiver
 struct sig_queue{
-  struct spinlock lock;
+  // struct spinlock lock;
   char data[SIG_QUE_SIZE][SIG_SIZE];
   int start;
   int end;
@@ -97,7 +99,7 @@ struct proc {
   // signal handling data:
   sighandler_t sig_htable[NoSigHandlers]; // table of function pointers of different signal handlers
   int sig_handler_busy;                   // is the process executing the signal handler
-  struct sig_queue SigQueue // Queue for pending signals
+  struct sig_queue SigQueue; // Queue for pending signals
 };
 
 // Process memory is laid out contiguously, low addresses first:
