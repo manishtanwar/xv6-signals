@@ -684,8 +684,24 @@ int sig_ret(void){
   return 1;
 }
   
-int check_pending_signals(){
+int check_pending_signals(void){
+  struct proc *curProc = myproc();
+  struct sig_queue *SigQueue = &curproc->SigQueue;
+
+  if(curproc->sig_handler_busy)
+    return 0;
   
+  acquire(&SigQueue->lock);
+  
+  if(SigQueue->start == SigQueue->end){
+    // no signal pending
+    release(&SigQueue->lock);
+    return 0;
+  }
+  int sig_num = SigQueue->sig_num_list[start];
+  char* msg = ;
+
+  release(&SigQueue->lock);
 }
 
 // ********** multicasting ***************
