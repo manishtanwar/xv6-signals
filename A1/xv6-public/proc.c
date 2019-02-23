@@ -115,6 +115,7 @@ found:
   // Initialize data for signal handling
   p->sig_handler_busy = 0;
   p->SigQueue.start = p->SigQueue.end = 0;
+  p->SigQueue.lock.locked = 0;
 
   return p;
 }
@@ -656,12 +657,22 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   SigQueue->end++;
   SigQueue->end %= SIG_QUE_SIZE;
 
-  release(SigQueue->lock);
+  // wakeup if the signal recieving process is waiting for it
+  wakeup(&SigQueue->start);
+  
+  release(&SigQueue->lock);
   return 0;
 }
 
 int sig_pause(void){
-  return 1;
+  int pid = myproc()->pid;
+  int id = get_process_id(pid);
+  if(id == -1) return -1;
+
+  acquire(&ptable[id].SigQueue.lock);
+  sleep(&ptable[id].SigQueue.start, &ptable[id].SigQueue.lock);
+  release(&ptable[id].SigQueue.lock);
+  return 0;
 }
 
 int sig_ret(void){
