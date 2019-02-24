@@ -67,6 +67,15 @@ struct proc {
   struct sig_queue SigQueue; // Queue for pending signals
 };
 
+// A message queue for every receiver
+struct msg_queue{
+  struct spinlock lock;
+  char data[BUFFER_SIZE][MSGSIZE];
+  int start;
+  int end;
+  int channel;
+}MsgQueue[NPROC];
+
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss

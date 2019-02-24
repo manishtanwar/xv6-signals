@@ -78,7 +78,11 @@ allocproc(void)
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  // ****added**************
+  int i = 0;
+  // ****
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++,i++)
     if(p->state == UNUSED)
       goto found;
 
@@ -117,6 +121,10 @@ found:
   p->sig_handler_busy = 0;
   p->SigQueue.start = p->SigQueue.end = 0;
   p->SigQueue.lock.locked = 0;
+
+  MsgQueue[i].start = MsgQueue[i].end = 0;
+
+  // ****
 
   return p;
 }
@@ -549,23 +557,16 @@ procdump(void)
 void
 ps_print_list(){
   int i;
+  acquire(&ptable.lock);
   for(i = 0; i < NPROC; i++){
     if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
+  release(&ptable.lock);
 }
 
 // ************ Unicasting ******************
-
-// A message queue for every receiver
-struct msg_queue{
-  struct spinlock lock;
-  char data[BUFFER_SIZE][MSGSIZE];
-  int start;
-  int end;
-  int channel;
-}MsgQueue[NPROC];
 
 int 
 get_process_id(int pid){
@@ -643,28 +644,28 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   int id = get_process_id(dest_pid);
   if(id == -1) return -1;
 
-  struct sig_queue *SigQueue = &ptable[id].SigQueue;
+  struct sig_queue *SigQueue = &ptable.proc[id].SigQueue;
 
   acquire(&SigQueue->lock);
 
   if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
     // queue is full
-    release(SigQueue->lock);
+    release(&SigQueue->lock);
     return -1;
   }
 
   // copy the data in queue
-  SigQueue->sig_num_list[end] = sig_num;
+  SigQueue->sig_num_list[SigQueue->end] = sig_num;
   int i;
   for(i = 0; i < MSGSIZE; i++)
-    SigQueue->sig_arg[end][i] = sig_arg[i];
+    SigQueue->sig_arg[SigQueue->end][i] = sig_arg[i];
 
   SigQueue->end++;
   SigQueue->end %= SIG_QUE_SIZE;
 
   // wakeup if the signal recieving process is waiting for it
   wakeup(&SigQueue->start);
-  
+
   release(&SigQueue->lock);
   return 0;
 }
@@ -674,9 +675,9 @@ int sig_pause(void){
   int id = get_process_id(pid);
   if(id == -1) return -1;
 
-  acquire(&ptable[id].SigQueue.lock);
-  sleep(&ptable[id].SigQueue.start, &ptable[id].SigQueue.lock);
-  release(&ptable[id].SigQueue.lock);
+  acquire(&ptable.proc[id].SigQueue.lock);
+  sleep(&ptable.proc[id].SigQueue.start, &ptable.proc[id].SigQueue.lock);
+  release(&ptable.proc[id].SigQueue.lock);
   return 0;
 }
 
@@ -686,7 +687,7 @@ int sig_ret(void){
 }
   
 int check_pending_signals(void){
-  struct proc *curProc = myproc();
+  struct proc *curproc = myproc();
   struct sig_queue *SigQueue = &curproc->SigQueue;
 
   if(curproc->sig_handler_busy)
@@ -699,12 +700,15 @@ int check_pending_signals(void){
     release(&SigQueue->lock);
     return 0;
   }
-  int sig_num = SigQueue->sig_num_list[start];
-  char* msg = ;
+  int sig_num = SigQueue->sig_num_list[SigQueue->start];
+  char* msg = SigQueue->sig_arg[SigQueue->start];
+
+
 
   release(&SigQueue->lock);
+  return 1;
 }
-
+  
 // ********** multicasting ***************
 
 // due
