@@ -652,12 +652,13 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
 
   // debug:
   // cprintf("sigh : %d\n",b);
-  
-  if(ptable.proc[id].sig_htable[sig_num] == 0){
-    return 0;
-  }
 
   acquire(&SigQueue->lock);
+  if(ptable.proc[id].sig_htable[sig_num] == 0){
+    release(&SigQueue->lock);
+    return 0;
+  }
+  
   if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
     // queue is full
     release(&SigQueue->lock);
@@ -703,7 +704,7 @@ int sig_pause(void){
 
 int sig_ret(void){
   // debug:
-  cprintf("in sig ret\n");
+  // cprintf("in sig ret\n");
 
   struct proc *curproc = myproc();
   uint ustack_esp = curproc->tf->esp;
@@ -794,6 +795,7 @@ void execute_signal_handler(void){
 
 int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
   int i;
+  cprintf("rec_length %d\n",rec_length);
   for(i = 0; i < rec_length; i++){
     sig_send(rec_pids[i], 0, msg);
   }
