@@ -647,6 +647,11 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   struct sig_queue *SigQueue = &ptable.proc[id].SigQueue;
   
   // if the sig_handler corresponding to sig_num is not set then throw error
+  uint b = 0;
+  b = (uint)ptable.proc[id].sig_htable[sig_num];
+
+  cprintf("sigh : %d\n",b);
+  
   if(ptable.proc[id].sig_htable[sig_num] == 0){
     return 0;
   }
@@ -668,6 +673,8 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   SigQueue->end %= SIG_QUE_SIZE;
 
   // wakeup if the signal reciever process is waiting for it
+  // debug:
+  cprintf("Channel in send : %p\n",(uint)(&SigQueue->start));
   wakeup(&SigQueue->start);
 
   release(&SigQueue->lock);
@@ -680,7 +687,15 @@ int sig_pause(void){
   if(id == -1) return -1;
 
   acquire(&ptable.proc[id].SigQueue.lock);
-  sleep(&ptable.proc[id].SigQueue.start, &ptable.proc[id].SigQueue.lock);
+
+  if(ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
+    // debug:
+    cprintf("Channel in Pause : %p\n",(uint)(&ptable.proc[id].SigQueue.start));
+    sleep(&ptable.proc[id].SigQueue.start, &ptable.proc[id].SigQueue.lock);
+    // debug:
+    cprintf("Pause : Sleep done\n");
+  }
+
   release(&ptable.proc[id].SigQueue.lock);
   return 0;
 }
@@ -701,8 +716,11 @@ void execute_signal_handler(void){
   struct proc *curproc = myproc();
   struct sig_queue *SigQueue = &curproc->SigQueue;
 
-  if(curproc->sig_handler_busy)
+  if(myproc() == 0 || (curproc->tf->cs & 3) != DPL_USER)
     return;
+  // if(curproc->sig_handler_busy)
+  //   return;
+  // debug:
   
   acquire(&SigQueue->lock);
   
@@ -711,6 +729,8 @@ void execute_signal_handler(void){
     release(&SigQueue->lock);
     return;
   }
+  cprintf("in exe sig handler\n");
+  
   int sig_num = SigQueue->sig_num_list[SigQueue->start];
   char* msg = SigQueue->sig_arg[SigQueue->start];
   

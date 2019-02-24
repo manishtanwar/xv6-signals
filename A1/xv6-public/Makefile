@@ -186,6 +186,7 @@ UPROGS=\
 	_user_toggle\
 	_user_add\
 	_user_ps\
+	_user_signal_checker\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README arr $(UPROGS)
@@ -253,6 +254,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
+	user_signal_checker.c\
 	user_ps.c\
 	user_add.c\
 	user_toggle.c print_count.c\
