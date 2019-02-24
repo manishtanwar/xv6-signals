@@ -31,7 +31,6 @@ int main(void)
 		printf(1, "pause_code : %d\n", b);
 		int c = wait();
 		printf(1, "wait_code : %d %d\n", c, fun_called);
-
 	}
 	
 	exit();

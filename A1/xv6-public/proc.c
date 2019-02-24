@@ -701,6 +701,9 @@ int sig_pause(void){
 }
 
 int sig_ret(void){
+  // debug:
+  cprintf("in sig ret\n");
+
   struct proc *curproc = myproc();
   uint ustack_esp = curproc->tf->esp;
   
@@ -720,7 +723,6 @@ void execute_signal_handler(void){
     return;
   // if(curproc->sig_handler_busy)
   //   return;
-  // debug:
   
   acquire(&SigQueue->lock);
   
@@ -729,8 +731,9 @@ void execute_signal_handler(void){
     release(&SigQueue->lock);
     return;
   }
+  // debug:
   cprintf("in exe sig handler\n");
-  
+
   int sig_num = SigQueue->sig_num_list[SigQueue->start];
   char* msg = SigQueue->sig_arg[SigQueue->start];
   
@@ -751,16 +754,16 @@ void execute_signal_handler(void){
   void *sig_ret_code_addr = (void *)execute_sigret_syscall_start;
   uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
   // return addr for handler
-  uint handler_ret_addr = ustack_esp+1;
   ustack_esp -= sig_ret_code_size;
+  uint handler_ret_addr = ustack_esp;
   memmove((void *)ustack_esp, sig_ret_code_addr, sig_ret_code_size);
 
   // Push the parameters for sig_handler
-  // Parameter addr(msg)
-  uint para1 = ustack_esp+1;
   // First push the char array
   ustack_esp -= MSGSIZE;
   memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
+  // Parameter addr(msg)
+  uint para1 = ustack_esp;
   ustack_esp -= sizeof(uint);
   memmove((void *)ustack_esp, (void *)para1, sizeof(uint));
 
