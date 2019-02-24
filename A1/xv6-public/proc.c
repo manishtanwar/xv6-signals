@@ -792,7 +792,10 @@ void execute_signal_handler(void){
 
 // ********** multicasting ***************
 
-// due
 int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
-  return 1;
+  int i;
+  for(i = 0; i < rec_length; i++){
+    sig_send(rec_pids[i], 0, msg);
+  }
+  return 0;
 }
