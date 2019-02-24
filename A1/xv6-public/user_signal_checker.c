@@ -3,34 +3,38 @@
 #include "user.h"
 
 #define MSGSIZE 8
-int fun_called;
+int fun_called = 0;
 void fun(void *a){
 	char *b = (char *)a;
 	fun_called = 1;
-	printf(1, "Here we are : %s\n",b);
+	printf(1, "Here we are : %s %d\n",b,fun_called);
+	int aa = getpid();
+	printf(1, "%d\n", aa);
 }
 
 int main(void)
 {	
 	int a = sig_set(0,&fun);
-	printf(1, "set_code : %d\n", a);
-	int par_pid = getpid();
+	a++;
+	// printf(1, "set_code,pid : %d %d\n", a, par_pid);
 	int cid = fork();
 	if(cid==0){
-		char *msg_child = (char *)malloc(MSGSIZE);
-		msg_child = "DoDoned";
-		int a = sig_send(par_pid,0,(void *)msg_child);
-		printf(1, "send_code : %d\n", a);
-		free(msg_child);
+
+		if(fun_called == 0) sig_pause();
+		int a = 13;
+		printf(1,"%d\n",a);
 		exit();
 	}else{
 		// This is parent
-		printf(1, "pausing\n");
-		int b = 0;
-		if(fun_called == 0) sig_pause();
-		printf(1, "pause_code : %d\n", b);
-		int c = wait();
-		printf(1, "wait_code : %d %d\n", c, fun_called);
+
+		char *msg_child = (char *)malloc(MSGSIZE);
+		msg_child = "DoDoned";
+		sig_send(cid,0,(void *)msg_child);
+		msg_child = "Dasdk";
+		sig_send(cid,0,(void *)msg_child);
+		free(msg_child);
+
+		wait();
 	}
 	
 	exit();

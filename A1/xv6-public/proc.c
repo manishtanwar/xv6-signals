@@ -647,10 +647,11 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   struct sig_queue *SigQueue = &ptable.proc[id].SigQueue;
   
   // if the sig_handler corresponding to sig_num is not set then throw error
-  uint b = 0;
-  b = (uint)ptable.proc[id].sig_htable[sig_num];
+  // uint b = 0;
+  // b = (uint)ptable.proc[id].sig_htable[sig_num];
 
-  cprintf("sigh : %d\n",b);
+  // debug:
+  // cprintf("sigh : %d\n",b);
   
   if(ptable.proc[id].sig_htable[sig_num] == 0){
     return 0;
@@ -674,7 +675,7 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
 
   // wakeup if the signal reciever process is waiting for it
   // debug:
-  cprintf("Channel in send : %p\n",(uint)(&SigQueue->start));
+  // cprintf("Channel in send : %p\n",(uint)(&SigQueue->start));
   wakeup(&SigQueue->start);
 
   release(&SigQueue->lock);
@@ -690,10 +691,10 @@ int sig_pause(void){
 
   if(ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
     // debug:
-    cprintf("Channel in Pause : %p\n",(uint)(&ptable.proc[id].SigQueue.start));
+    // cprintf("Channel in Pause : %p\n",(uint)(&ptable.proc[id].SigQueue.start));
     sleep(&ptable.proc[id].SigQueue.start, &ptable.proc[id].SigQueue.lock);
     // debug:
-    cprintf("Pause : Sleep done\n");
+    // cprintf("Pause : Sleep done\n");
   }
 
   release(&ptable.proc[id].SigQueue.lock);
@@ -709,9 +710,8 @@ int sig_ret(void){
   
   uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
   ustack_esp += sizeof(uint) + MSGSIZE + sig_ret_code_size;
-  memmove((void *)curproc->tf, (void *)ustack_esp, sizeof(struct trapframe));
-  ustack_esp += sizeof(struct trapframe);
   // copy back the trapframe to kernel stack
+  memmove((void *)curproc->tf, (void *)ustack_esp, sizeof(struct trapframe));
   return 0;
 }
 
@@ -731,17 +731,20 @@ void execute_signal_handler(void){
     release(&SigQueue->lock);
     return;
   }
-  // debug:
-  cprintf("in exe sig handler\n");
 
   int sig_num = SigQueue->sig_num_list[SigQueue->start];
   char* msg = SigQueue->sig_arg[SigQueue->start];
+
+  // // debug:
+  // cprintf("in exe sig handler, pid : %d\n",curproc->pid);
+  // cprintf("sig_num : %d, msg : %s \n", sig_num, msg);
   
   SigQueue->start++;
   SigQueue->start %= SIG_QUE_SIZE;
 
   // ustack_esp : user stack pointer
   uint ustack_esp = curproc->tf->esp;
+  
   // copy the trap frame from kernel stack to user stack 
   // for retrieving it in the sig_ret call
   ustack_esp -= sizeof(struct trapframe);
@@ -753,6 +756,10 @@ void execute_signal_handler(void){
   // Wrap and copy the sig_ret asm code on user stack
   void *sig_ret_code_addr = (void *)execute_sigret_syscall_start;
   uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
+  
+  // // debug:
+  // cprintf("code size : %d\n",sig_ret_code_size);
+
   // return addr for handler
   ustack_esp -= sig_ret_code_size;
   uint handler_ret_addr = ustack_esp;
@@ -761,15 +768,23 @@ void execute_signal_handler(void){
   // Push the parameters for sig_handler
   // First push the char array
   ustack_esp -= MSGSIZE;
-  memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
   // Parameter addr(msg)
   uint para1 = ustack_esp;
+  // uint para1 = 1111;
+  cprintf("para1 : %p, Ret_addr : %d\n",para1,handler_ret_addr);
+
+  memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
+  
   ustack_esp -= sizeof(uint);
-  memmove((void *)ustack_esp, (void *)para1, sizeof(uint));
+  memmove((void *)ustack_esp, (void *)&para1, sizeof(uint));
 
   // push the return addr
   ustack_esp -= sizeof(uint);
-  memmove((void *)ustack_esp, (void *)handler_ret_addr, sizeof(uint));
+  memmove((void *)ustack_esp, (void *)&handler_ret_addr, sizeof(uint));
+
+  // cprintf("esp : %d, uesp : %d\n", curproc->tf->esp, ustack_esp);
+  curproc->tf->esp = ustack_esp;
+  // cprintf("esp : %d, uesp : %d\n", curproc->tf->esp, ustack_esp);
 
   release(&SigQueue->lock);
   return;
