@@ -770,8 +770,8 @@ void execute_signal_handler(void){
   ustack_esp -= MSGSIZE;
   // Parameter addr(msg)
   uint para1 = ustack_esp;
-  // uint para1 = 1111;
-  cprintf("para1 : %p, Ret_addr : %d\n",para1,handler_ret_addr);
+  // debug:
+  // cprintf("para1 : %p, Ret_addr : %d\n",para1,handler_ret_addr);
 
   memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
   

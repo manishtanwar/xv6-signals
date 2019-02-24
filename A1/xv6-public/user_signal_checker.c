@@ -3,38 +3,53 @@
 #include "user.h"
 
 #define MSGSIZE 8
-int fun_called = 0;
+int fun_called[15], cid[15];
+int child_no;
+
 void fun(void *a){
-	char *b = (char *)a;
-	fun_called = 1;
-	printf(1, "Here we are : %s %d\n",b,fun_called);
-	int aa = getpid();
-	printf(1, "%d\n", aa);
+	int *b = (int *)a;
+	fun_called[child_no] = 1;
+	printf(1, "Child %dth : %d, %d\n",child_no,b[0],b[1]);
 }
 
 int main(void)
 {	
-	int a = sig_set(0,&fun);
-	a++;
-	// printf(1, "set_code,pid : %d %d\n", a, par_pid);
-	int cid = fork();
-	if(cid==0){
+	while(sig_set(0,&fun) < 0);
 
-		if(fun_called == 0) sig_pause();
-		int a = 13;
-		printf(1,"%d\n",a);
+	int i;
+	for(i=0;i<15;i++)
+		cid[i] = -1;
+
+	for(i=0;i<15;i++){
+		cid[i] = fork();
+		if(cid[i] == 0) goto children;
+	}
+
+
+	if(cid[0]==0){
+		children:
+		child_no = i;
+		if(fun_called[i] == 0) sig_pause();
+		printf(1,"%dth child ended\n",i+1);
 		exit();
 	}else{
 		// This is parent
 
-		char *msg_child = (char *)malloc(MSGSIZE);
-		msg_child = "DoDoned";
-		sig_send(cid,0,(void *)msg_child);
-		msg_child = "Dasdk";
-		sig_send(cid,0,(void *)msg_child);
-		free(msg_child);
+		int a[15][2];
+		for(i=0;i<15;i++)
+			a[i][0] = i+1, a[i][1] = -(i+1);
 
-		wait();
+		for(i=0;i<15;i++){
+			char *msg_child;
+			msg_child = (char *)a[i];
+
+			sig_send(cid[i], 0, (void *)msg_child);
+			free(msg_child);
+			sleep(20);
+		}
+
+		for(i=0;i<15;i++)
+			wait();
 	}
 	
 	exit();
