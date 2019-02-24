@@ -688,28 +688,28 @@ int sig_pause(void){
 int sig_ret(void){
   struct proc *curproc = myproc();
   uint ustack_esp = curproc->tf->esp;
-
-  uint sig_ret_code_size = (uint)(execute_sigret_syscall_end - execute_sigret_syscall_start);
+  
+  uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
   ustack_esp += sizeof(uint) + MSGSIZE + sig_ret_code_size;
   memmove((void *)curproc->tf, (void *)ustack_esp, sizeof(struct trapframe));
   ustack_esp += sizeof(struct trapframe);
   // copy back the trapframe to kernel stack
   return 0;
 }
-  
-int check_pending_signals(void){
+
+void execute_signal_handler(void){
   struct proc *curproc = myproc();
   struct sig_queue *SigQueue = &curproc->SigQueue;
 
   if(curproc->sig_handler_busy)
-    return 0;
+    return;
   
   acquire(&SigQueue->lock);
   
   if(SigQueue->start == SigQueue->end){
     // no signal pending
     release(&SigQueue->lock);
-    return 0;
+    return;
   }
   int sig_num = SigQueue->sig_num_list[SigQueue->start];
   char* msg = SigQueue->sig_arg[SigQueue->start];
@@ -729,7 +729,7 @@ int check_pending_signals(void){
 
   // Wrap and copy the sig_ret asm code on user stack
   void *sig_ret_code_addr = (void *)execute_sigret_syscall_start;
-  uint sig_ret_code_size = (uint)(execute_sigret_syscall_end - execute_sigret_syscall_start);
+  uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
   // return addr for handler
   uint handler_ret_addr = ustack_esp+1;
   ustack_esp -= sig_ret_code_size;
@@ -749,7 +749,7 @@ int check_pending_signals(void){
   memmove((void *)ustack_esp, (void *)handler_ret_addr, sizeof(uint));
 
   release(&SigQueue->lock);
-  return 0;
+  return;
 }
 
 // ********** multicasting ***************
