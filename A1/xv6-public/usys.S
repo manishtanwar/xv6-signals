@@ -40,3 +40,13 @@ SYSCALL(sig_send)
 SYSCALL(sig_pause)
 SYSCALL(sig_ret)
 SYSCALL(send_multi)
+
+
+.globl execute_sig_ret_syscall_start;
+.globl execute_sig_ret_syscall_end;
+
+execute_sig_ret_syscall_start:
+	movl $SYS_sig_ret, %eax;
+	int $T_SYSCALL;
+	ret
+execute_sig_ret_syscall_end:

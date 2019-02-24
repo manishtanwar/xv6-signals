@@ -645,9 +645,13 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   if(id == -1) return -1;
 
   struct sig_queue *SigQueue = &ptable.proc[id].SigQueue;
+  
+  // if the sig_handler corresponding to sig_num is not set then throw error
+  if(ptable.proc[id].sig_htable[sig_num] == 0){
+    return 0;
+  }
 
   acquire(&SigQueue->lock);
-
   if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
     // queue is full
     release(&SigQueue->lock);
@@ -663,7 +667,7 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
   SigQueue->end++;
   SigQueue->end %= SIG_QUE_SIZE;
 
-  // wakeup if the signal recieving process is waiting for it
+  // wakeup if the signal reciever process is waiting for it
   wakeup(&SigQueue->start);
 
   release(&SigQueue->lock);
@@ -681,9 +685,16 @@ int sig_pause(void){
   return 0;
 }
 
-// due
 int sig_ret(void){
-  return 1;
+  struct proc *curproc = myproc();
+  uint ustack_esp = curproc->tf->esp;
+
+  uint sig_ret_code_size = (uint)(execute_sigret_syscall_end - execute_sigret_syscall_start);
+  ustack_esp += sizeof(uint) + MSGSIZE + sig_ret_code_size;
+  memmove((void *)curproc->tf, (void *)ustack_esp, sizeof(struct trapframe));
+  ustack_esp += sizeof(struct trapframe);
+  // copy back the trapframe to kernel stack
+  return 0;
 }
   
 int check_pending_signals(void){
@@ -702,13 +713,45 @@ int check_pending_signals(void){
   }
   int sig_num = SigQueue->sig_num_list[SigQueue->start];
   char* msg = SigQueue->sig_arg[SigQueue->start];
+  
+  SigQueue->start++;
+  SigQueue->start %= SIG_QUE_SIZE;
 
+  // ustack_esp : user stack pointer
+  uint ustack_esp = curproc->tf->esp;
+  // copy the trap frame from kernel stack to user stack 
+  // for retrieving it in the sig_ret call
+  ustack_esp -= sizeof(struct trapframe);
+  memmove((void *)ustack_esp, (void *)curproc->tf, sizeof(struct trapframe));
 
+  // Modify the eip in tf(which is on kernel stack) to execute sig_handler on returning from kernel mode
+  curproc->tf->eip = (uint)curproc->sig_htable[sig_num];
+
+  // Wrap and copy the sig_ret asm code on user stack
+  void *sig_ret_code_addr = (void *)execute_sigret_syscall_start;
+  uint sig_ret_code_size = (uint)(execute_sigret_syscall_end - execute_sigret_syscall_start);
+  // return addr for handler
+  uint handler_ret_addr = ustack_esp+1;
+  ustack_esp -= sig_ret_code_size;
+  memmove((void *)ustack_esp, sig_ret_code_addr, sig_ret_code_size);
+
+  // Push the parameters for sig_handler
+  // Parameter addr(msg)
+  uint para1 = ustack_esp+1;
+  // First push the char array
+  ustack_esp -= MSGSIZE;
+  memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
+  ustack_esp -= sizeof(uint);
+  memmove((void *)ustack_esp, (void *)para1, sizeof(uint));
+
+  // push the return addr
+  ustack_esp -= sizeof(uint);
+  memmove((void *)ustack_esp, (void *)handler_ret_addr, sizeof(uint));
 
   release(&SigQueue->lock);
-  return 1;
+  return 0;
 }
-  
+
 // ********** multicasting ***************
 
 // due
