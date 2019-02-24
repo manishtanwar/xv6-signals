@@ -123,6 +123,7 @@ found:
   p->SigQueue.lock.locked = 0;
 
   MsgQueue[i].start = MsgQueue[i].end = 0;
+  MsgQueue[i].lock.locked = 0;
 
   // ****
 
@@ -658,7 +659,7 @@ int sig_send(int dest_pid, int sig_num, char *sig_arg){
     release(&SigQueue->lock);
     return 0;
   }
-  
+
   if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
     // queue is full
     release(&SigQueue->lock);
