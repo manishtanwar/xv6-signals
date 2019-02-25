@@ -136,11 +136,7 @@ int sig_send(int dest_pid, int sig_num, void *sig_arg);
   \begin{itemize}
     \item If there is no signal available for this process, then it returns back to \code{trepret}.
     \item \textbf{Setting up user stack:} (for calling the signal handler)
-    \begin{figure}[ht!]
-      \centering %width=90mm
-      \includegraphics[width=110mm]{./Diagrams/flow_control.png}
-      \caption{Flow Control of Receiver Processor on Signal Handling\label{MIMD}}
-    \end{figure}
+  
     \begin{enumerate}
       \item For saving the user mode's context, it saves the trapframe of this process from the kernel stack to the user mode stack.
       \item It changes the register \code{\%eip} (stored in the trapframe) to the function pointer of the signal handler.
@@ -149,11 +145,7 @@ int sig_send(int dest_pid, int sig_num, void *sig_arg);
       \item For returning back from the user mode to kernel mode, we have to make a syscall \code{sig\_ret} but the signal handler might not call this syscall due to other interrupts. To solve this problem we wrap up the system call code(written in \code{x86} assembly) on the stack and call it implicitly by pushing the return address for signal handler as the wrapped code's first instruction.
       \item Return back to \code{trapret} function to call user mode's signal handler.
     \end{enumerate}
-    \begin{figure}[ht!]
-      \centering %width=90mm
-      \includegraphics[width=110mm]{./Diagrams/stack_diagram.png}
-      \caption{Setting up the User Stack\label{MIMD}}
-    \end{figure}
+    
   \end{itemize}
 
   \item Returning from Signal Handling:
@@ -162,6 +154,22 @@ int sig_send(int dest_pid, int sig_num, void *sig_arg);
     \item \code{sig\_ret} syscall just save the trapfram back from user stack to the kernel stack which retrieves back the original user mode context.
   \end{itemize}
 \end{itemize}
+
+    \begin{figure}[ht!]
+      \centering %width=90mm
+      \includegraphics[width=120mm]{./Diagrams/flow_control.png}
+      \caption{Flow Control of Receiver Processor on Signal Handling\label{MI1MD}}
+    \end{figure}
+
+    % \vspace*{-0.4cm\}
+
+    \begin{figure}[ht!]
+      \centering %width=90mm
+      \includegraphics[width=130mm]{./Diagrams/stack_diagram.png}
+      \caption{Setting up the User Stack\label{MIMD}}
+    \end{figure}
+
+  \newpage
 
   \item \textbf{Waiting for a Signal:}
   \begin{itemize}
@@ -197,7 +205,7 @@ int send_multi(int sender_pid,int rec_pids[],void *msg,int rec_length);
   \item The coordinator collects the partial square sums and computes the variance.
 \end{itemize}
   
-\section{Extra Efforts:}
+\section{Extra Works:}
 \begin{itemize}
   \item Traps are not disabled during the execution of the signal handler.
   \item We can make system calls in the signal handler.
