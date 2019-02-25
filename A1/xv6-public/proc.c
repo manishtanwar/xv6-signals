@@ -692,7 +692,7 @@ int sig_pause(void){
   
   acquire(&ptable.proc[id].SigQueue.lock);
   // debug:
-  cprintf("s");
+  // cprintf("s");
   
   if(ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
     // debug:
@@ -702,7 +702,7 @@ int sig_pause(void){
     // cprintf("Pause : Sleep done\n");
   }
   // debug:
-  cprintf("e");
+  // cprintf("e");
   release(&ptable.proc[id].SigQueue.lock);
   return 0;
 }
@@ -800,7 +800,8 @@ void execute_signal_handler(void){
 
 int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
   int i;
-  cprintf("rec_length %d\n",rec_length);
+  // debug:
+  // cprintf("rec_length %d\n",rec_length);
   for(i = 0; i < rec_length; i++){
     sig_send(rec_pids[i], 0, msg);
   }

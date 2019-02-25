@@ -187,6 +187,14 @@ UPROGS=\
 	_user_add\
 	_user_ps\
 	_user_signal_checker\
+	_assig1_1\
+	_assig1_2\
+	_assig1_3\
+	_assig1_4\
+	_assig1_5\
+	_assig1_6\
+	_assig1_7\
+	_assig1_8\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README arr $(UPROGS)
@@ -253,7 +261,9 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # rename it to rev0 or rev1 or so on and then
 # check in that version.
 
+
 EXTRA=\
+	assig1_1.c assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c assig1_8.c\
 	user_signal_checker.c\
 	user_ps.c\
 	user_add.c\
