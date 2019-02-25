@@ -125,7 +125,6 @@ main(int argc, char *argv[])
 
   	if(type==0){ //unicast sum
 		printf(1,"Sum of array for file %s is %d\n", filename, tot_sum);
-		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
 	else{ //mulicast variance
 		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);

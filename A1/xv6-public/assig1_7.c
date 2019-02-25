@@ -2,8 +2,6 @@
 #include "stat.h"
 #include "user.h"
 
-#define MSGSIZE 8
-
 int main(void)
 {
 	printf(1,"%s\n","IPC Test case");

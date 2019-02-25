@@ -160,8 +160,8 @@ char *system_call_names[NoSysCalls] = {"sys_fork", "sys_exit",
 "sys_fstat", "sys_chdir", "sys_dup", "sys_getpid", "sys_sbrk", 
 "sys_sleep", "sys_uptime", "sys_open", "sys_write", "sys_mknod",
 "sys_unlink", "sys_link", "sys_mkdir", "sys_close", "sys_print_count", 
-"sys_toggle", "sys_add", "sys_ps", "sys_send", "sys_recv", 
-"sys_sig_set", "sys_sig_send", "sys_sig_pause", "sys_sig_ret", "sys_send_multi"};
+"sys_toggle", "sys_add", "sys_ps", "sys_send", "sys_recv", "sys_send_multi",
+"sys_sig_set", "sys_sig_send", "sys_sig_pause", "sys_sig_ret"};
 
 void
 syscall(void)
