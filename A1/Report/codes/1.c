@@ -2,7 +2,7 @@
 int sig_set(int sig_num, sighandler_t handler);
 
 /* Sends a signal to dest_pid process' sig_num Signal Handler
-with argument sig_arg(Pointing to an 8 byte message) */
+with argument sig_arg(Pointing to an 8 bytes message) */
 int sig_send(int dest_pid, int sig_num, void *sig_arg);
 
 // Block the process until a signal is received
