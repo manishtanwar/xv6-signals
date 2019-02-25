@@ -3,6 +3,7 @@
 #include "user.h"
 
 #define NO_CHILD 8
+
 float avg_global = 0.0;
 volatile int flag_handler = 0;
 
