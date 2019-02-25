@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.4)  25 FEB 2019 18:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.2.25)  25 FEB 2019 20:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **"/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.tex"
 (/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.tex
 LaTeX2e <2017-04-15>
-Babel <3.18> and hyphenation patterns for 3 language(s) loaded.
+Babel <3.18> and hyphenation patterns for 7 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
@@ -598,24 +598,71 @@ Package: rotating 2016/08/11 v2.16d rotated objects in LaTeX
 \rotFPbot=\skip60
 \rot@float@box=\box39
 \rot@mess@toks=\toks37
+) (/usr/share/texlive/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
+Package: algorithm2e 2017/07/18 v5.2 algorithms environments
+\c@AlgoLine=\count149
+\algocf@hangindent=\skip61
+(/usr/share/texlive/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
+Package: ifoddpage 2016/04/23 v1.1 Conditionals for odd/even page detection
+\c@checkoddpage=\count150
+) (/usr/share/texlive/texmf-dist/tex/latex/tools/xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+) (/usr/share/texlive/texmf-dist/tex/latex/relsize/relsize.sty
+Package: relsize 2013/03/29 ver 4.1
+)
+\skiptotal=\skip62
+\skiplinenumber=\skip63
+\skiprule=\skip64
+\skiphlne=\skip65
+\skiptext=\skip66
+\skiplength=\skip67
+\algomargin=\skip68
+\skipalgocfslide=\skip69
+\algowidth=\dimen188
+\inoutsize=\dimen189
+\inoutindent=\dimen190
+\interspacetitleruled=\dimen191
+\interspacealgoruled=\dimen192
+\interspacetitleboxruled=\dimen193
+\algocf@ruledwidth=\skip70
+\algocf@inoutbox=\box40
+\algocf@inputbox=\box41
+\AlCapSkip=\skip71
+\AlCapHSkip=\skip72
+\algoskipindent=\skip73
+\algocf@nlbox=\box42
+\algocf@hangingbox=\box43
+\algocf@untilbox=\box44
+\algocf@skipuntil=\skip74
+\algocf@capbox=\box45
+\algocf@lcaptionbox=\skip75
+\algoheightruledefault=\skip76
+\algoheightrule=\skip77
+\algotitleheightruledefault=\skip78
+\algotitleheightrule=\skip79
+\c@algocfline=\count151
+\c@algocfproc=\count152
+\c@algocf=\count153
+\algocf@algoframe=\box46
+\algocf@algobox=\box47
 ) (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count149
-\lst@gtempboxa=\box40
+\lst@mode=\count154
+\lst@gtempboxa=\box48
 \lst@token=\toks38
-\lst@length=\count150
-\lst@currlwidth=\dimen188
-\lst@column=\count151
-\lst@pos=\count152
-\lst@lostspace=\dimen189
-\lst@width=\dimen190
-\lst@newlines=\count153
-\lst@lineno=\count154
-\lst@maxwidth=\dimen191
+\lst@length=\count155
+\lst@currlwidth=\dimen194
+\lst@column=\count156
+\lst@pos=\count157
+\lst@lostspace=\dimen195
+\lst@width=\dimen196
+\lst@newlines=\count158
+\lst@lineno=\count159
+\lst@maxwidth=\dimen197
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
-\c@lstnumber=\count155
-\lst@skipnumbers=\count156
-\lst@framebox=\box41
+\c@lstnumber=\count160
+\lst@skipnumbers=\count161
+\lst@framebox=\box49
 ) (/usr/share/texlive/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
@@ -626,42 +673,42 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
 ) (/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty
 Package: booktabs 2016/04/27 v1.618033 publication quality tables
-\heavyrulewidth=\dimen192
-\lightrulewidth=\dimen193
-\cmidrulewidth=\dimen194
-\belowrulesep=\dimen195
-\belowbottomsep=\dimen196
-\aboverulesep=\dimen197
-\abovetopsep=\dimen198
-\cmidrulesep=\dimen199
+\heavyrulewidth=\dimen198
+\lightrulewidth=\dimen199
 Normal \dimen register pool exhausted, switching to extended pool.
-\cmidrulekern=\dimen256
-\defaultaddspace=\dimen257
-\@cmidla=\count157
-\@cmidlb=\count158
-\@aboverulesep=\dimen258
-\@belowrulesep=\dimen259
-\@thisruleclass=\count159
-\@lastruleclass=\count160
-\@thisrulewidth=\dimen260
+\cmidrulewidth=\dimen256
+\belowrulesep=\dimen257
+\belowbottomsep=\dimen258
+\aboverulesep=\dimen259
+\abovetopsep=\dimen260
+\cmidrulesep=\dimen261
+\cmidrulekern=\dimen262
+\defaultaddspace=\dimen263
+\@cmidla=\count162
+\@cmidlb=\count163
+\@aboverulesep=\dimen264
+\@belowrulesep=\dimen265
+\@thisruleclass=\count164
+\@lastruleclass=\count165
+\@thisrulewidth=\dimen266
 ) (/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/macros.tex) (/h
 ome/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.aux)
 \openout1 = `a1_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -698,16 +745,16 @@ LaTeX Font Info:    ... okay on input line 38.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count161
-\scratchdimen=\dimen261
-\scratchbox=\box42
-\nofMPsegments=\count162
-\nofMParguments=\count163
+\scratchcounter=\count166
+\scratchdimen=\dimen267
+\scratchbox=\box50
+\nofMPsegments=\count167
+\nofMParguments=\count168
 \everyMPshowfont=\toks39
-\MPscratchCnt=\count164
-\MPscratchDim=\dimen262
-\MPnumerator=\count165
-\makeMPintoPDFobject=\count166
+\MPscratchCnt=\count169
+\MPscratchDim=\dimen268
+\MPnumerator=\count170
+\makeMPintoPDFobject=\count171
 \everyMPtoPDFconversion=\toks40
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
@@ -730,60 +777,72 @@ Package caption Info: listings package is loaded.
 Package caption Info: rotating package is loaded.
 Package caption Info: End \AtBeginDocument code.
 ABD: EveryShipout initializing macros
-\AtBeginShipoutBox=\box43
-Package hyperref Info: Link coloring ON on input line 38.
+\AtBeginShipoutBox=\box51
+Package hyperref Info: Link coloring ON on input line 42.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count167
+\c@section@level=\count172
 )
-LaTeX Info: Redefining \ref on input line 38.
-LaTeX Info: Redefining \pageref on input line 38.
-LaTeX Info: Redefining \nameref on input line 38.
+LaTeX Info: Redefining \ref on input line 42.
+LaTeX Info: Redefining \pageref on input line 42.
+LaTeX Info: Redefining \nameref on input line 42.
 (/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.out) (/
 home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.out)
 \@outlinefile=\write4
 \openout4 = `a1_report.out'.
 
-\c@lstlisting=\count168
-
-Package Fancyhdr Warning: \fancyhead's `E' option without twoside option is use
-less on input line 39.
-
+\c@lstlisting=\count173
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 55.
+(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 55.
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 51.
+nput line 70.
 (/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/codes/1.c) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 54.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 54.
+LaTeX Font Info:    Try loading font information for U+msa on input line 148.
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 148.
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [2] [3]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 157.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 157.
 (/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report/a1_report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 54.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 54.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 157.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 157.
 Package rerunfilecheck Info: File `a1_report.out' has not changed.
 (rerunfilecheck)             Checksum: B6044E20F74282735FFC401328FB381B;168.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 54.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 157.
  ) 
 Here is how much of TeX's memory you used:
- 20055 strings out of 494923
- 372053 string characters out of 6180743
- 462397 words of memory out of 5000000
- 23013 multiletter control sequences out of 15000+600000
- 5625 words of font info for 21 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 55i,6n,72p,474b,1101s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 21096 strings out of 494847
+ 388793 string characters out of 6179080
+ 511470 words of memory out of 5000000
+ 24012 multiletter control sequences out of 15000+600000
+ 7324 words of font info for 29 fonts, out of 8000000 for 9000
+ 59 hyphenation exceptions out of 8191
+ 55i,11n,72p,493b,1142s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmtt10.pfb>
 Output written on "/home/manish/Desktop/6th Sem/COL331 OS/Assignments/A1/Report
-/a1_report.pdf" (1 page, 64332 bytes).
+/a1_report.pdf" (3 pages, 101236 bytes).
 PDF statistics:
- 70 PDF objects out of 1000 (max. 8388607)
- 61 compressed objects within 1 object stream
- 22 named destinations out of 1000 (max. 500000)
+ 112 PDF objects out of 1000 (max. 8388607)
+ 99 compressed objects within 1 object stream
+ 44 named destinations out of 1000 (max. 500000)
  37 words of extra memory for PDF output out of 10000 (max. 10000000)
 
