@@ -11,6 +11,27 @@
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{rotating}
 
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\lstset{
+  tabsize=2,
+  basicstyle=\fontsize{12}{5.5}\ttfamily,
+  language=C,
+  showspaces=false,
+  showtabs=false,
+  numbers = left,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+  basicstyle=\ttfamily,
+  moredelim=[il][\textcolor{pgrey}]{$$},
+  moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}
+}
+
 \usepackage{booktabs}
 \input{macros.tex}
 
@@ -21,7 +42,13 @@
 \section{System Calls:}
 
 \section{Inter-Process Communication:}
+\subsection*{Unicasting:}
+\subsection*{Signals:}
+\subsection*{Multicasting:}
 
 \section{Distributed Algorithm:}
+
+\raggedbottom\lstinputlisting[language=C]{codes/1.c}
+
 
 \end{document} 
