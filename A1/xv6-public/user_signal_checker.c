@@ -3,19 +3,21 @@
 #include "user.h"
 
 #define MSGSIZE 8
-int fun_called[15], cid[15];
+#define NN 20
+volatile int fun_called;
+int cid[NN];
 int child_no;
-
+int i;
 void fun(void *a){
 	// int *b = (int *)a;
-	fun_called[child_no] = 1;
+	fun_called = 1;
 	// printf(1, "Child %dth : %d, %d\n",child_no,b[0],b[1]);
-	// printf(1, "%d\n",child_no);
+	// printf(1, "%d\n",i+1);
 }
 
 void fun1(void *a){
 	// char *b = (char *)a;
-	fun_called[child_no] = 1;
+	fun_called = 1;
 	// printf(1, "Child %dth : %s\n",child_no,b);
 }
 
@@ -24,34 +26,36 @@ int main(void)
 	while(sig_set(0,&fun1) < 0);
 	while(sig_set(1,&fun) < 0);
 
-	int i;
-	int n = 15;
-	for(i=0;i<n;i++)
+	for(i=0;i<NN;i++)
 		cid[i] = -1;
 
-	for(i=0;i<n;i++){
+	fun_called = 0;
+
+	// printf(1, "par1 : %d\n",getpid());
+
+	for(i=0;i<NN;i++){
 		cid[i] = fork();
-		if(cid[i] == 0) goto children;
+		if(cid[i] == 0) {child_no = i; break;}
 	}
 
-
-	if(cid[0]==0){
-		children:
-		child_no = i;
-		if(fun_called[i] == 0) sig_pause();
-		printf(1,"%d\n",i+1);
+	if(cid[NN-1] <= 0){
+		if(fun_called == 0) sig_pause();
+		// while(fun_called == 0);
+		// printf(1,"cc: %d\n",i+1);
 		exit();
 	}else{
 		// This is parent
+		// printf(1, "par2 : %d\n",getpid());
 
 		// char *msg = "HeyGuys";
-		// send_multi(getpid(), cid, msg, n);
+		// send_multi(getpid(), cid, msg, n);0.
+		// sleep(20);
 
-		int a[n][2];
-		for(i=0;i<n;i++)
+		int a[NN][2];
+		for(i=0;i<NN;i++)
 			a[i][0] = i+1, a[i][1] = -(i+1);
 
-		for(i=0;i<n;i++){
+		for(i=0;i<NN;i++){
 			char *msg_child;
 			msg_child = (char *)a[i];
 
@@ -60,8 +64,8 @@ int main(void)
 			// sleep(20);
 		}
 
-		printf(1, "Parent\n");
-		for(i=0;i<n;i++)
+		// printf(1, "Parent\n");
+		for(i=0;i<NN;i++)
 			wait();
 	}
 	

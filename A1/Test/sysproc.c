@@ -90,6 +90,8 @@ sys_uptime(void)
   return xticks;
 }
 
+// added functions:
+
 int toggle_flag = 0;
 #define NoSysCalls 27
 
@@ -98,7 +100,8 @@ extern char *system_call_names[NoSysCalls];
 
 int
 sys_print_count(void){
-  for(int i = 0 ; i < NoSysCalls; i++){
+  int i;
+  for(i = 0 ; i < NoSysCalls; i++){
     if(system_call_count[i] > 0)
     cprintf("%s %d\n", system_call_names[i], system_call_count[i]);
   }
@@ -109,7 +112,8 @@ int
 sys_toggle(void)
 {
   if(toggle_flag == 0){
-    for(int i = 0; i < NoSysCalls; i++)
+    int i;
+    for(i = 0; i < NoSysCalls; i++)
       system_call_count[i] = 0;
   }
   toggle_flag ^= 1;
@@ -129,32 +133,80 @@ sys_add(void)
 }
 
 int 
-sys_ps(){
+sys_ps(void){
   ps_print_list();
   return 1;
 }
 
-#define MSGSIZE 8
+// IPC unicast:
 
-int sys_send(){
+int 
+sys_send(void){
   int sender_pid, rec_pid;
   char* msg;
-  char* physical_address_msg;
   // fetch the arguments
   if(argint(0, &sender_pid) < 0 || argint(1, &rec_pid) < 0 || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)msg, &physical_address_msg) < 0)
-    return -1;
-  return send_msg(sender_pid, rec_pid, physical_address_msg);
+  return send_msg(sender_pid, rec_pid, msg);
 }
 
-int sys_recv(){
+int 
+sys_recv(void){
   char* msg;
-  char* physical_address_msg;
   // fetch the arguments
   if(argptr(0, &msg, MSGSIZE) < 0)
     return -1;
-  if(fetchstr((uint)msg, &physical_address_msg) < 0)
+  return recv_msg(msg);
+}
+
+// Signals:
+
+int
+sys_sig_set(void){
+  int sig_num;
+  char* handler_char;
+  sighandler_t handler;
+  // fetch the arguments
+  if(argint(0, &sig_num) < 0 || argptr(1, &handler_char, 4) < 0)
     return -1;
-  return recv_msg(physical_address_msg);
+  handler = (sighandler_t) handler_char;
+  return sig_set(sig_num, handler);
+}
+
+int
+sys_sig_send(void){
+  int sig_num, dest_pid;
+  char *sig_arg;
+  // fetch the arguments
+  if(argint(0, &dest_pid), argint(1, &sig_num) < 0 || argptr(2, &sig_arg, MSGSIZE) < 0)
+    return -1;
+  return sig_send(dest_pid, sig_num, sig_arg);
+}
+
+int
+sys_sig_pause(void){
+  return sig_pause();
+}
+
+int
+sys_sig_ret(void){
+  return sig_ret();
+}
+
+// IPC multicast:
+int
+sys_send_multi(void){
+  char *rec_pids_char;
+  int sender_pid, *rec_pids, rec_length;
+  char* msg;
+
+  // fetch the arguments
+  if(argint(3, &rec_length) < 0)
+    return -1;
+  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids_char, rec_length) < 0
+   || argptr(2, &msg, MSGSIZE) < 0)
+    return -1;
+
+  rec_pids = (int *)rec_pids_char;
+  return send_multi(sender_pid, rec_pids, msg, rec_length);
 }

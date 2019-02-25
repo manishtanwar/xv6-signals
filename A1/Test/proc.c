@@ -78,7 +78,11 @@ allocproc(void)
 
   acquire(&ptable.lock);
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  // ****added**************
+  int i = 0;
+  // ****
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++,i++)
     if(p->state == UNUSED)
       goto found;
 
@@ -111,6 +115,17 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  // ****added**************
+  // Initialize data for signal handling
+  p->sig_handler_busy = 0;
+  p->SigQueue.start = p->SigQueue.end = 0;
+  p->SigQueue.lock.locked = 0;
+
+  MsgQueue[i].start = MsgQueue[i].end = 0;
+  MsgQueue[i].lock.locked = 0;
+
+  // ****
 
   return p;
 }
@@ -200,6 +215,12 @@ fork(void)
   np->parent = curproc;
   *np->tf = *curproc->tf;
 
+  // ****added**************
+  // Copy signal handler functions' pointers from parent
+  for(i = 0; i < NoSigHandlers; i++)
+    np->sig_htable[i] = curproc->sig_htable[i];
+  // ****
+  
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -351,7 +372,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -533,40 +553,27 @@ procdump(void)
   }
 }
 
-// Added Code:
+// Added Functions:
 
 // Function call to print a list of all current running processes
 void
 ps_print_list(){
-  for(int i = 0; i < NPROC; i++){
+  int i;
+  acquire(&ptable.lock);
+  for(i = 0; i < NPROC; i++){
     if(ptable.proc[i].state != UNUSED){
       cprintf("pid:%d name:%s\n", ptable.proc[i].pid, ptable.proc[i].name);
     }
   }
+  release(&ptable.lock);
 }
 
-// Unicast:
-
-#define MSGSIZE 8
-#define BUFFER_SIZE 32
-
-// A message queue for every receiver
-struct msg_queue{
-  struct spinlock lock;
-  char data[BUFFER_SIZE][MSGSIZE];
-  int start;
-  int end;
-  int channel;
-  
-  // constructor
-  // msg_queue() : start(0), end(0) {}
-
-}Queue[NPROC];
-
+// ************ Unicasting ******************
 
 int 
 get_process_id(int pid){
-  for(int i = 0 ; i < NPROC; i++){
+  int i;
+  for(i = 0 ; i < NPROC; i++){
     if(ptable.proc[i].pid == pid)
       return i;
   }
@@ -577,23 +584,24 @@ int
 send_msg(int sender_pid, int rec_pid, char *msg){
   int id = get_process_id(rec_pid);
   if(id == -1) return -1;
-  acquire(&Queue[id].lock);
+  acquire(&MsgQueue[id].lock);
   
-  if((Queue[id].end + 1) % BUFFER_SIZE == Queue[id].start){
-    cprintf("Buffer is full\n");
-    release(&Queue[id].lock);
+  if((MsgQueue[id].end + 1) % BUFFER_SIZE == MsgQueue[id].start){
+    // cprintf("Buffer is full\n");
+    release(&MsgQueue[id].lock);
     return -1;
   }
 
-  for(int i = 0; i < MSGSIZE; i++){
-    Queue[id].data[Queue[id].end][i] = msg[i];
+  int i;
+  for(i = 0; i < MSGSIZE; i++){
+    MsgQueue[id].data[MsgQueue[id].end][i] = msg[i];
   }
 
-  Queue[id].end++;
-  Queue[id].end %= BUFFER_SIZE;
+  MsgQueue[id].end++;
+  MsgQueue[id].end %= BUFFER_SIZE;
 
-  wakeup(&Queue[id].channel);
-  release(&Queue[id].lock);
+  wakeup(&MsgQueue[id].channel);
+  release(&MsgQueue[id].lock);
   return 0;
 }
 
@@ -602,22 +610,196 @@ recv_msg(char* msg){
   int rec_id = myproc()->pid;
   int id = get_process_id(rec_id);
   if(id == -1) return -1;
-  acquire(&Queue[id].lock);
+  acquire(&MsgQueue[id].lock);
   
   while(1){
-    if(Queue[id].end == Queue[id].start){
-      sleep(&Queue[id].channel, &Queue[id].lock);
+    if(MsgQueue[id].end == MsgQueue[id].start){
+      sleep(&MsgQueue[id].channel, &MsgQueue[id].lock);
     }
     else{
-      Queue[id].end = (Queue[id].end - 1 + BUFFER_SIZE) % BUFFER_SIZE;
-      
-      for(int i = 0; i < MSGSIZE; i++){
-        msg[i] = Queue[id].data[Queue[id].end][i];
+      int i;
+      for(i = 0; i < MSGSIZE; i++){
+        msg[i] = MsgQueue[id].data[MsgQueue[id].start][i];
       }
+      MsgQueue[id].start++;
+      MsgQueue[id].start %= BUFFER_SIZE;
 
-      release(&Queue[id].lock);
+      release(&MsgQueue[id].lock);
       break;
     }
+  }
+  return 0;
+}
+
+// *********** Signals ****************
+
+int sig_set(int sig_num, sighandler_t handler){
+  if(sig_num < 0 || sig_num >= NoSigHandlers)
+    return -1;
+  myproc()->sig_htable[sig_num] = handler;
+  return 0;
+}
+
+int sig_send(int dest_pid, int sig_num, char *sig_arg){
+  if(sig_num < 0 || sig_num >= NoSigHandlers)
+    return -1;
+  int id = get_process_id(dest_pid);
+  if(id == -1) return -1;
+
+  struct sig_queue *SigQueue = &ptable.proc[id].SigQueue;
+  
+  // if the sig_handler corresponding to sig_num is not set then throw error
+  // uint b = 0;
+  // b = (uint)ptable.proc[id].sig_htable[sig_num];
+
+  // debug:
+  // cprintf("sigh : %d\n",b);
+
+  acquire(&SigQueue->lock);
+  if(ptable.proc[id].sig_htable[sig_num] == 0){
+    release(&SigQueue->lock);
+    return 0;
+  }
+
+  if((SigQueue->end + 1) % SIG_QUE_SIZE == SigQueue->start){
+    // queue is full
+    release(&SigQueue->lock);
+    return -1;
+  }
+
+  // copy the data in queue
+  SigQueue->sig_num_list[SigQueue->end] = sig_num;
+  int i;
+  for(i = 0; i < MSGSIZE; i++)
+    SigQueue->sig_arg[SigQueue->end][i] = sig_arg[i];
+
+  SigQueue->end++;
+  SigQueue->end %= SIG_QUE_SIZE;
+
+  // wakeup if the signal reciever process is waiting for it
+  // debug:
+  // cprintf("Channel in send : %p\n",(uint)(&SigQueue->start));
+  wakeup(&SigQueue->start);
+
+  release(&SigQueue->lock);
+  return 0;
+}
+
+int sig_pause(void){
+  int pid = myproc()->pid;
+  int id = get_process_id(pid);
+  if(id == -1) return -1;
+
+  acquire(&ptable.proc[id].SigQueue.lock);
+
+  if(ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
+    // debug:
+    // cprintf("Channel in Pause : %p\n",(uint)(&ptable.proc[id].SigQueue.start));
+    sleep(&ptable.proc[id].SigQueue.start, &ptable.proc[id].SigQueue.lock);
+    // debug:
+    // cprintf("Pause : Sleep done\n");
+  }
+
+  release(&ptable.proc[id].SigQueue.lock);
+  return 0;
+}
+
+int sig_ret(void){
+  // debug:
+  // cprintf("in sig ret\n");
+
+  struct proc *curproc = myproc();
+  uint ustack_esp = curproc->tf->esp;
+  
+  uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
+  ustack_esp += sizeof(uint) + MSGSIZE + sig_ret_code_size;
+  // copy back the trapframe to kernel stack
+  memmove((void *)curproc->tf, (void *)ustack_esp, sizeof(struct trapframe));
+  return 0;
+}
+
+void execute_signal_handler(void){
+  struct proc *curproc = myproc();
+  struct sig_queue *SigQueue = &curproc->SigQueue;
+
+  if(myproc() == 0 || (curproc->tf->cs & 3) != DPL_USER)
+    return;
+  // if(curproc->sig_handler_busy)
+  //   return;
+  
+  acquire(&SigQueue->lock);
+  
+  if(SigQueue->start == SigQueue->end){
+    // no signal pending
+    release(&SigQueue->lock);
+    return;
+  }
+
+  int sig_num = SigQueue->sig_num_list[SigQueue->start];
+  char* msg = SigQueue->sig_arg[SigQueue->start];
+
+  // // debug:
+  // cprintf("in exe sig handler, pid : %d\n",curproc->pid);
+  // cprintf("sig_num : %d, msg : %s \n", sig_num, msg);
+  
+  SigQueue->start++;
+  SigQueue->start %= SIG_QUE_SIZE;
+
+  // ustack_esp : user stack pointer
+  uint ustack_esp = curproc->tf->esp;
+  
+  // copy the trap frame from kernel stack to user stack 
+  // for retrieving it in the sig_ret call
+  ustack_esp -= sizeof(struct trapframe);
+  memmove((void *)ustack_esp, (void *)curproc->tf, sizeof(struct trapframe));
+
+  // Modify the eip in tf(which is on kernel stack) to execute sig_handler on returning from kernel mode
+  curproc->tf->eip = (uint)curproc->sig_htable[sig_num];
+
+  // Wrap and copy the sig_ret asm code on user stack
+  void *sig_ret_code_addr = (void *)execute_sigret_syscall_start;
+  uint sig_ret_code_size = ((uint)&execute_sigret_syscall_end - (uint)&execute_sigret_syscall_start);
+  
+  // // debug:
+  // cprintf("code size : %d\n",sig_ret_code_size);
+
+  // return addr for handler
+  ustack_esp -= sig_ret_code_size;
+  uint handler_ret_addr = ustack_esp;
+  memmove((void *)ustack_esp, sig_ret_code_addr, sig_ret_code_size);
+
+  // Push the parameters for sig_handler
+  // First push the char array
+  ustack_esp -= MSGSIZE;
+  // Parameter addr(msg)
+  uint para1 = ustack_esp;
+  // debug:
+  // cprintf("para1 : %p, Ret_addr : %d\n",para1,handler_ret_addr);
+
+  memmove((void *)ustack_esp, (void *)msg, MSGSIZE); 
+  
+  ustack_esp -= sizeof(uint);
+  memmove((void *)ustack_esp, (void *)&para1, sizeof(uint));
+
+  // push the return addr
+  ustack_esp -= sizeof(uint);
+  memmove((void *)ustack_esp, (void *)&handler_ret_addr, sizeof(uint));
+
+  // cprintf("esp : %d, uesp : %d\n", curproc->tf->esp, ustack_esp);
+  curproc->tf->esp = ustack_esp;
+  // cprintf("esp : %d, uesp : %d\n", curproc->tf->esp, ustack_esp);
+
+  release(&SigQueue->lock);
+  return;
+}
+
+// ********** multicasting ***************
+
+int send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length){
+  int i;
+  cprintf("rec_length %d\n",rec_length);
+  for(i = 0; i < rec_length; i++){
+    sig_send(rec_pids[i], 0, msg);
   }
   return 0;
 }

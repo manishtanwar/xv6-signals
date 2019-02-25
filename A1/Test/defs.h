@@ -121,9 +121,22 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 void			ps_print_list();
-// IPC Functions for unicast
+// IPC for unicast
 int 			send_msg(int sender_pid, int rec_pid, char *msg);
 int 			recv_msg(char* msg);
+// Signals
+int 			sig_set(int sig_num, sighandler_t handler);
+int 			sig_send(int dest_pid, int sig_num, char *sig_arg);
+int 			sig_pause(void);
+int 			sig_ret(void);
+void 			execute_signal_handler(void);
+// IPC for multicast
+int 			send_multi(int sender_pid, int rec_pids[], char *msg, int rec_length);
+
+
+// sigret_syscall.S
+void execute_sigret_syscall_start(void);
+void execute_sigret_syscall_end(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

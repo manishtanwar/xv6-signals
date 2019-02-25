@@ -219,6 +219,7 @@ fork(void)
   // Copy signal handler functions' pointers from parent
   for(i = 0; i < NoSigHandlers; i++)
     np->sig_htable[i] = curproc->sig_htable[i];
+  // ****
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -688,9 +689,11 @@ int sig_pause(void){
   int pid = myproc()->pid;
   int id = get_process_id(pid);
   if(id == -1) return -1;
-
+  
   acquire(&ptable.proc[id].SigQueue.lock);
-
+  // debug:
+  cprintf("s");
+  
   if(ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
     // debug:
     // cprintf("Channel in Pause : %p\n",(uint)(&ptable.proc[id].SigQueue.start));
@@ -698,7 +701,8 @@ int sig_pause(void){
     // debug:
     // cprintf("Pause : Sleep done\n");
   }
-
+  // debug:
+  cprintf("e");
   release(&ptable.proc[id].SigQueue.lock);
   return 0;
 }

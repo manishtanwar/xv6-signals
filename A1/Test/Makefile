@@ -15,6 +15,7 @@ OBJS = \
 	picirq.o\
 	pipe.o\
 	proc.o\
+	sigret_syscall.o\
 	sleeplock.o\
 	spinlock.o\
 	string.o\
@@ -185,6 +186,7 @@ UPROGS=\
 	_user_toggle\
 	_user_add\
 	_user_ps\
+	_user_signal_checker\
 	_assig1_1\
 	_assig1_2\
 	_assig1_3\
@@ -257,16 +259,10 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # after running make dist, probably want to
 # rename it to rev0 or rev1 or so on and then
 # check in that version.
-# assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c\
-# assig1_1.c\
-# assig1_2.c\
-# assig1_3.c\
-# assig1_4.c\
-# assig1_5.c\
-# assig1_6.c\
 
 EXTRA=\
 	assig1_1.c assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c\
+	user_signal_checker.c\
 	user_ps.c\
 	user_add.c\
 	user_toggle.c print_count.c\

@@ -26,14 +26,14 @@ echo "Running..6"
 echo "Running..7"
 ./test_assig1.sh assig1_7|grep -i 'PARENT\|CHILD'|sed 's/$ //g'|sort> res_assig1_7
 
-# echo "Running..8 (this will take 10 seconds)"
-# ./test_assig1_long.sh assig1_8 0 arr|grep -i 'Sum of array'|sed 's/$ //g'|sort> res_assig1_8
+echo "Running..8 (this will take 10 seconds)"
+./test_assig1_long.sh assig1_8 0 arr|grep -i 'Sum of array'|sed 's/$ //g'|sort> res_assig1_8
 
-# echo "Running..9 (this will take 10 seconds)"
-# ./test_assig1_long.sh assig1_8 1 arr|grep -i 'Variance of array'|sed 's/$ //g'|sort> res_assig1_9
+echo "Running..9 (this will take 10 seconds)"
+./test_assig1_long.sh assig1_8 1 arr|grep -i 'Variance of array'|sed 's/$ //g'|sort> res_assig1_9
 
 
-check_test=7
+check_test=9
 total_test=0
 
 for ((t=1;t<=$check_test;++t))

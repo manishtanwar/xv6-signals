@@ -1,3 +1,4 @@
+#include "spinlock.h"
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -34,6 +35,16 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+// A message queue for every receiver
+struct sig_queue{
+  struct spinlock lock;
+  char sig_arg[SIG_QUE_SIZE][MSGSIZE];
+  int sig_num_list[SIG_QUE_SIZE];
+  int start; // works as channel also
+  int end;
+};
+
+#define NoSigHandlers 4 // Number of signal handlers(0,1,2,3)
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -49,7 +60,21 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+
+  // signal handling data:
+  sighandler_t sig_htable[NoSigHandlers]; // table of function pointers of different signal handlers
+  int sig_handler_busy;                   // is the process executing the signal handler
+  struct sig_queue SigQueue; // Queue for pending signals
 };
+
+// A message queue for every receiver
+struct msg_queue{
+  struct spinlock lock;
+  char data[BUFFER_SIZE][MSGSIZE];
+  int start;
+  int end;
+  int channel;
+}MsgQueue[NPROC];
 
 // Process memory is laid out contiguously, low addresses first:
 //   text
