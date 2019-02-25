@@ -93,7 +93,8 @@ sys_uptime(void)
 // added functions:
 
 int toggle_flag = 0;
-#define NoSysCalls 27
+#define NoSysCalls 32
+#define NoPrintSysCalls 28
 
 extern int system_call_count[NoSysCalls];
 extern char *system_call_names[NoSysCalls];
@@ -101,7 +102,7 @@ extern char *system_call_names[NoSysCalls];
 int
 sys_print_count(void){
   int i;
-  for(i = 0 ; i < NoSysCalls; i++){
+  for(i = 0 ; i < NoPrintSysCalls; i++){
     if(system_call_count[i] > 0)
     cprintf("%s %d\n", system_call_names[i], system_call_count[i]);
   }
