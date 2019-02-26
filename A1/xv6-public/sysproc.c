@@ -204,7 +204,7 @@ sys_send_multi(void){
   // fetch the arguments
   if(argint(3, &rec_length) < 0)
     return -1;
-  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids_char, rec_length) < 0
+  if(argint(0, &sender_pid) < 0 || argptr(1, &rec_pids_char, 4*rec_length) < 0
    || argptr(2, &msg, MSGSIZE) < 0)
     return -1;
 
