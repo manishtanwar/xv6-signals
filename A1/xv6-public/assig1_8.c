@@ -80,9 +80,9 @@ main(int argc, char *argv[])
 
   		// pause until msg is received
   		if(flag_handler == 0) sig_pause();
-      // while(flag_handler == 0){
-        
-      // }
+	      // while(flag_handler == 0){
+	        
+	      // }
 
   		float partial_var = 0.0;
   		for(i = start; i < end; i++){
