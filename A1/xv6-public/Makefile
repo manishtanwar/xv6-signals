@@ -182,10 +182,6 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
-	_print_count\
-	_user_toggle\
-	_user_add\
-	_user_ps\
 	_assig1_1\
 	_assig1_2\
 	_assig1_3\
@@ -263,9 +259,6 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 
 EXTRA=\
 	assig1_1.c assig1_2.c assig1_3.c assig1_4.c assig1_5.c assig1_6.c assig1_7.c assig1_8.c\
-	user_ps.c\
-	user_add.c\
-	user_toggle.c print_count.c\
 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
