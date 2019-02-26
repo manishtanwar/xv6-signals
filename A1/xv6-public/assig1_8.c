@@ -43,7 +43,7 @@ main(int argc, char *argv[])
   
   	//----FILL THE CODE HERE for unicast sum and multicast variance
 
-	int *cid = (int *)malloc(NO_CHILD * sizeof(int));
+	  int *cid = (int *)malloc(NO_CHILD * sizeof(int));
   	int ind, par_pid;
   	par_pid = getpid();
 
@@ -80,6 +80,9 @@ main(int argc, char *argv[])
 
   		// pause until msg is received
   		if(flag_handler == 0) sig_pause();
+      // while(flag_handler == 0){
+        
+      // }
 
   		float partial_var = 0.0;
   		for(i = start; i < end; i++){

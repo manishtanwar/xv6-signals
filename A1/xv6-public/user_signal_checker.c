@@ -39,7 +39,7 @@ int main(void)
 	}
 
 	if(cid[NN-1] <= 0){
-		if(fun_called == 0) sig_pause();
+		// if(fun_called == 0) sig_pause();
 		// while(fun_called == 0);
 		// printf(1,"cc: %d\n",i+1);
 		exit();
