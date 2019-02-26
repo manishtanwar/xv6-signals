@@ -210,10 +210,16 @@ int send_multi(int sender_pid,int rec_pids[],void *msg,int rec_length);
   \item Traps are not disabled during the execution of the signal handler.
   \item We can make system calls in the signal handler.
   \item Can handle nested executions of signal handlers.
-  \item Support of multiple signal handlers.
-  \item Implemented a syscall waiting for a signal(blocking call).
+  \item Support of multiple signal handlers with identifiers {0,1,3,4}.
+  \item Receiver can wait for signals using system call \code{sys\_pause}. It's a blocked calling i.e process is blocked until a signal arrives for it. (saves cpu cycles)
   \item The message queue is implemented efficiently.
   \item The maximum number of worker processes in the distributed algorithm can be up to 32 as well.
 \end{itemize}
+
+\subsection*{References:}
+\begin{enumerate}
+  \item \url{http://courses.cms.caltech.edu/cs124/lectures-wi2016/CS124Lec15.pdf}
+  \item \url{https://www.cs.bgu.ac.il/~os162/wiki.files/Practical%20Session%203%20-%20Signals.pptx}
+\end{enumerate}
 
 \end{document} 
