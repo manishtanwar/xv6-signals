@@ -723,10 +723,13 @@ int sig_ret(void){
 
 void execute_signal_handler(void){
   struct proc *curproc = myproc();
-  struct sig_queue *SigQueue = &curproc->SigQueue;
 
-  if(myproc() == 0 || (curproc->tf->cs & 3) != DPL_USER)
+  if(curproc == 0)
     return;
+  if((curproc->tf->cs & 3) != DPL_USER)
+    return;
+  
+  struct sig_queue *SigQueue = &curproc->SigQueue;
   // if(curproc->sig_handler_busy)
   //   return;
   

@@ -6,12 +6,12 @@
 
 float avg_global = 0.0;
 volatile int flag_handler = 0;
+int ind; 
 
 void sig_handler(void *msg){
 	flag_handler  = 1;
-  int pid = getpid();
-  flag_handler += pid;
-  flag_handler -= pid;
+  // int pid = getpid();
+  // printf(1, "h %d\n", ind);
 	// get avg from msg
 	avg_global = *((float *)msg);
 }
@@ -47,7 +47,7 @@ main(int argc, char *argv[])
   	//----FILL THE CODE HERE for unicast sum and multicast variance
 
 	  int *cid = (int *)malloc(NO_CHILD * sizeof(int));
-  	int ind, par_pid;
+  	int par_pid;
   	par_pid = getpid();
 
   	// set the signal handler before forking
@@ -134,7 +134,7 @@ main(int argc, char *argv[])
 
   	if(type==0){ //unicast sum
 		printf(1,"Sum of array for file %s is %d\n", filename, tot_sum);
-    printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
+    // printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
 	else{ //mulicast variance
 		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);

@@ -488,6 +488,7 @@ wakeup1(void *chan)
 void
 wakeup(void *chan)
 {
+  // cprintf("w%p\n",myproc());
   acquire(&ptable.lock);
   wakeup1(chan);
   release(&ptable.lock);
@@ -692,7 +693,7 @@ int sig_pause(volatile int *flag_addr, int flag_expected){
   
   acquire(&ptable.proc[id].SigQueue.lock);
   // debug:
-  cprintf("s");
+  // cprintf("s");
   
   if(*flag_addr != flag_expected && ptable.proc[id].SigQueue.end == ptable.proc[id].SigQueue.start){
     // debug:
@@ -702,8 +703,10 @@ int sig_pause(volatile int *flag_addr, int flag_expected){
     // cprintf("Pause : Sleep done\n");
   }
   // debug:
-  cprintf("e");
+  // cprintf("e");
+  // cprintf("sp %d\n",pid);
   release(&ptable.proc[id].SigQueue.lock);
+
   return 0;
 }
 
@@ -725,8 +728,9 @@ void execute_signal_handler(void){
   struct proc *curproc = myproc();
   struct sig_queue *SigQueue = &curproc->SigQueue;
 
-  if(myproc() == 0 || (curproc->tf->cs & 3) != DPL_USER)
+  if(curproc == 0 || (curproc->tf->cs & 3) != DPL_USER)
     return;
+
   // if(curproc->sig_handler_busy)
   //   return;
   
