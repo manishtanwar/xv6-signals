@@ -125,6 +125,7 @@ main(int argc, char *argv[])
   		variance /= (float)size;
   		for(i = 0; i < NO_CHILD; i++)
   			wait();
+		free(msg);
   	}
 
   	//------------------
@@ -135,7 +136,6 @@ main(int argc, char *argv[])
 	else{ //mulicast variance
 		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
-	free(msg);
   	free(cid);
 	exit();
 }
