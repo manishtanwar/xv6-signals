@@ -43,7 +43,7 @@ main(int argc, char *argv[])
   
   	//----FILL THE CODE HERE for unicast sum and multicast variance
 
-	  int *cid = (int *)malloc(NO_CHILD * sizeof(int));
+	int *cid = (int *)malloc(NO_CHILD * sizeof(int));
   	int ind, par_pid;
   	par_pid = getpid();
 
@@ -96,6 +96,8 @@ main(int argc, char *argv[])
 
   		// send the partial var to the co-oridinator process
   		send(pid, par_pid, msg);
+  		free(cid);
+  		free(msg);
   		exit();
   	}
   	else{
@@ -133,5 +135,7 @@ main(int argc, char *argv[])
 	else{ //mulicast variance
 		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
+	free(msg);
+  	free(cid);
 	exit();
 }

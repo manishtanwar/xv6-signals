@@ -15,7 +15,7 @@ int main(void)
 			stat = recv(msg);
 		}
 		printf(1,"2 CHILD: msg recv is: %s \n", msg );
-
+		free(msg);
 		exit();
 	}else{
 		// This is parent

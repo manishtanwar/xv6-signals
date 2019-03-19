@@ -6,12 +6,9 @@
 
 float avg_global = 0.0;
 volatile int flag_handler = 0;
-int ind; 
 
 void sig_handler(void *msg){
 	flag_handler  = 1;
-  // int pid = getpid();
-  // printf(1, "h %d\n", ind);
 	// get avg from msg
 	avg_global = *((float *)msg);
 }
@@ -46,8 +43,8 @@ main(int argc, char *argv[])
   
   	//----FILL THE CODE HERE for unicast sum and multicast variance
 
-	  int *cid = (int *)malloc(NO_CHILD * sizeof(int));
-  	int par_pid;
+	int *cid = (int *)malloc(NO_CHILD * sizeof(int));
+  	int ind, par_pid;
   	par_pid = getpid();
 
   	// set the signal handler before forking
@@ -82,12 +79,10 @@ main(int argc, char *argv[])
   		send(pid, par_pid, msg);
 
   		// pause until msg is received
-  		// if(flag_handler == 0) 
-      // printf(1, "%p\n",&flag_handler);
-      sig_pause(&flag_handler,1);
-      // while(flag_handler == 0){
-        
-      // }
+  		if(flag_handler == 0) sig_pause();
+	      // while(flag_handler == 0){
+	        
+	      // }
 
   		float partial_var = 0.0;
   		for(i = start; i < end; i++){
@@ -101,6 +96,8 @@ main(int argc, char *argv[])
 
   		// send the partial var to the co-oridinator process
   		send(pid, par_pid, msg);
+  		free(cid);
+  		free(msg);
   		exit();
   	}
   	else{
@@ -134,10 +131,11 @@ main(int argc, char *argv[])
 
   	if(type==0){ //unicast sum
 		printf(1,"Sum of array for file %s is %d\n", filename, tot_sum);
-    // printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
 	else{ //mulicast variance
 		printf(1,"Variance of array for file %s is %d\n", filename, (int)variance);
 	}
+	free(msg);
+  	free(cid);
 	exit();
 }
