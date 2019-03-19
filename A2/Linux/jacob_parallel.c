@@ -52,19 +52,19 @@ int main(int argc, char *argv[])
 		for ( j= 1; j < N-1; j++) u[i][j] = mean;
 
 	//  --------------- Pipes: -------------------
-	int pid_across[P-1][2][2];
-	int pid_parent[P][2][2];
+	int pipe_across[P-1][2][2];
+	int pipe_parent[P][2][2];
 
 	for(i=0;i<P-1;i++)
 		for(j=0;j<2;j++)
-			if(pipe(pid_across[i][j]) < 0){
+			if(pipe(pipe_across[i][j]) < 0){
 				fprintf(stderr, "pipe error\n");
 				return 1;
 			}
 
 	for(i=0;i<P;i++)
 		for(j=0;j<2;j++)	
-			if(pipe(pid_parent[i][j]) < 0){
+			if(pipe(pipe_parent[i][j]) < 0){
 				fprintf(stderr, "pipe error\n");
 				return 1;
 			}
@@ -89,13 +89,13 @@ int main(int argc, char *argv[])
 		// closing all across pipes in parent
 		for(i=0;i<P-1;i++)
 			for(j=0;j<2;j++){
-				close(pid_across[i][j][0]);
-				close(pid_across[i][j][1]);
+				close(pipe_across[i][j][0]);
+				close(pipe_across[i][j][1]);
 			}
 
 		for(i=0;i<P;i++)
-			close(pid_parent[i][1][1]),
-			close(pid_parent[i][0][0]);
+			close(pipe_parent[i][1][1]),
+			close(pipe_parent[i][0][0]);
 
 		// Start Here:
 		float local_diff;
@@ -106,14 +106,14 @@ int main(int argc, char *argv[])
 			count++;
 			
 			for(i=0;i<P;i++){
-				read(pid_parent[i][1][0], &local_diff, sizeof(float));
+				read(pipe_parent[i][1][0], &local_diff, sizeof(float));
 				if(diff < local_diff)
 					diff = local_diff;
 			}
 
 			if(diff <= E) terminate = 1;
 			for(i=0;i<P;i++)
-				write(pid_parent[i][0][1], &terminate, sizeof(int));
+				write(pipe_parent[i][0][1], &terminate, sizeof(int));
 			if(terminate || count > L){ 
 				break;
 			}
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 			if(i >= extra) start += extra, end += extra;
 			else start += i, end += i+1;
 			start++; end++;
-			read(pid_parent[i][1][0], u[start], (end-start) * sizeof(float) * N);
+			read(pipe_parent[i][1][0], u[start], (end-start) * sizeof(float) * N);
 		}
 
 		for(i =0; i <N; i++){
@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
 		// ---------------
 
 		for(i=0;i<P;i++)
-			close(pid_parent[i][0][1]),
-			close(pid_parent[i][1][0]),
+			close(pipe_parent[i][0][1]),
+			close(pipe_parent[i][1][0]),
 			wait(NULL);
 	}
 
@@ -157,20 +157,20 @@ int main(int argc, char *argv[])
 		// child
 		for(i=0;i<P-1;i++){
 			if(i != c_index)
-				close(pid_across[i][0][1]),
-				close(pid_across[i][1][0]);
+				close(pipe_across[i][0][1]),
+				close(pipe_across[i][1][0]);
 			if(i != c_index-1)
-				close(pid_across[i][0][0]),
-				close(pid_across[i][1][1]);
+				close(pipe_across[i][0][0]),
+				close(pipe_across[i][1][1]);
 		}
 		for(i=0;i<P;i++)
 			if(i != c_index)
 			for(j=0;j<2;j++)
-				close(pid_parent[i][j][0]),
-				close(pid_parent[i][j][1]);
+				close(pipe_parent[i][j][0]),
+				close(pipe_parent[i][j][1]);
 
-		close(pid_parent[c_index][0][1]);
-		close(pid_parent[c_index][1][0]);
+		close(pipe_parent[c_index][0][1]);
+		close(pipe_parent[c_index][1][0]);
 
 		// Start Here:
 		int start, end, extra;
@@ -207,8 +207,8 @@ int main(int argc, char *argv[])
 			// ---------------
 			count++;
 			
-			write(pid_parent[c_index][1][1], &diff, sizeof(float));
-			read(pid_parent[c_index][0][0], &terminate, sizeof(int));
+			write(pipe_parent[c_index][1][1], &diff, sizeof(float));
+			read(pipe_parent[c_index][0][0], &terminate, sizeof(int));
 			
 			if(terminate || count > L){ 
 				break;
@@ -218,25 +218,25 @@ int main(int argc, char *argv[])
 				for (j =1; j< N-1; j++) u[i][j] = w[i][j];
 
 			// sending values:
-			if(c_index != 0) 	write(pid_across[c_index-1][1][1], u[start]+1, sizeof(float) * n);
-			if(c_index != P-1) 	write(pid_across[c_index][0][1], u[end-1]+1, sizeof(float) * n);
+			if(c_index != 0) 	write(pipe_across[c_index-1][1][1], u[start]+1, sizeof(float) * n);
+			if(c_index != P-1) 	write(pipe_across[c_index][0][1], u[end-1]+1, sizeof(float) * n);
 			
 			// receiving values:
-			if(c_index != 0) read(pid_across[c_index-1][0][0], u[start-1]+1, sizeof(float) * n);
-			if(c_index != P-1) read(pid_across[c_index][1][0], u[end]+1, sizeof(float) * n);
+			if(c_index != 0) read(pipe_across[c_index-1][0][0], u[start-1]+1, sizeof(float) * n);
+			if(c_index != P-1) read(pipe_across[c_index][1][0], u[end]+1, sizeof(float) * n);
 		}
 
-		write(pid_parent[c_index][1][1], u[start], sizeof(float) * N * (end-start));
+		write(pipe_parent[c_index][1][1], u[start], sizeof(float) * N * (end-start));
 
-		close(pid_parent[c_index][0][0]);
-		close(pid_parent[c_index][1][1]);
+		close(pipe_parent[c_index][0][0]);
+		close(pipe_parent[c_index][1][1]);
 
 		if(c_index != P-1)
-			close(pid_across[c_index][0][1]),
-			close(pid_across[c_index][1][0]);
+			close(pipe_across[c_index][0][1]),
+			close(pipe_across[c_index][1][0]);
 		if(c_index != 0)
-			close(pid_across[c_index-1][0][0]),
-			close(pid_across[c_index-1][1][1]);
+			close(pipe_across[c_index-1][0][0]),
+			close(pipe_across[c_index-1][1][1]);
 
 		// printf("id : %d\n",c_index);
 		// for(i=start;i<end;i++){
