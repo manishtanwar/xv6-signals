@@ -104,24 +104,12 @@ int main(int argc, char *argv[])
 			diff = 0.0;
 			terminate = 0;
 			count++;
-			// ---- debug ----
-			// printf("here\n");
-			// fflush(stdout);
-			// ---------------
 			
 			for(i=0;i<P;i++){
 				read(pid_parent[i][1][0], &local_diff, sizeof(float));
-				// ---- debug ----
-				// printf("%d - %f\n",i,local_diff);
-				// fflush(stdout);
-				// ---------------
 				if(diff < local_diff)
 					diff = local_diff;
 			}
-			// ---- debug ----
-			// printf("global diff : %f\n",diff);
-			// fflush(stdout);
-			// ---------------
 
 			if(diff <= E) terminate = 1;
 			for(i=0;i<P;i++)
@@ -135,14 +123,27 @@ int main(int argc, char *argv[])
 			// ---------------
 		}
 
-		// for(i =0; i <N; i++){
-		// 	for(j = 0; j<N; j++)
-		// 		printf("%d ",((int)u[i][j]));
-		// 	printf("\n");
-		// }
+		for(i=0;i<P;i++){
+			int start, end, extra;
+			int n = N-2;
+			int terminate = 0;
+			extra = n-(n/P)*P;
+			start = i * (n/P);
+			end = n/P + start;
+			if(i >= extra) start += extra, end += extra;
+			else start += i, end += i+1;
+			start++; end++;
+			read(pid_parent[i][1][0], u[start], (end-start) * sizeof(float) * N);
+		}
+
+		for(i =0; i <N; i++){
+			for(j = 0; j<N; j++)
+				printf("%d ",((int)u[i][j]));
+			printf("\n");
+		}
 
 		// ---- debug ----
-		printf("%d\n",count);
+		printf("no. of iterations : %d\n",count);
 		fflush(stdout);
 		// ---------------
 
@@ -216,25 +217,16 @@ int main(int argc, char *argv[])
 			for (i = start; i < end; i++)	
 				for (j =1; j< N-1; j++) u[i][j] = w[i][j];
 
-			// printf("id : %d\n",c_index);
-			// for(i=start;i<end;i++){
-			// 	for(j=0;j<N;j++)
-			// 		printf("%.3f ",u[i][j]);
-			// 	printf("\n");
-			// }
-			// printf("\n");
-			fflush(stdout);
 			// sending values:
-			if(c_index != 0) 	print(n,(u[start]+1),c_index, 0), write(pid_across[c_index-1][1][1], u[start]+1, sizeof(float) * n);
-			// if(c_index != 0) 	print(n,(float *)(u+start*N+1),c_index, 0), write(pid_across[c_index-1][1][1], u+start*N+1, sizeof(float) * n);
-			if(c_index != P-1) 	print(n,(u[end-1]+1),c_index, 0), write(pid_across[c_index][0][1], u[end-1]+1, sizeof(float) * n);
+			if(c_index != 0) 	write(pid_across[c_index-1][1][1], u[start]+1, sizeof(float) * n);
+			if(c_index != P-1) 	write(pid_across[c_index][0][1], u[end-1]+1, sizeof(float) * n);
 			
 			// receiving values:
-			if(c_index != 0) read(pid_across[c_index-1][0][0], u[start-1]+1, sizeof(float) * n), print(n, u[start-1]+1, c_index, 1);
-			if(c_index != P-1) read(pid_across[c_index][1][0], u[end]+1, sizeof(float) * n), print(n, u[end]+1, c_index, 1);
-			// printf("\n");
-			// printf("\n");
+			if(c_index != 0) read(pid_across[c_index-1][0][0], u[start-1]+1, sizeof(float) * n);
+			if(c_index != P-1) read(pid_across[c_index][1][0], u[end]+1, sizeof(float) * n);
 		}
+
+		write(pid_parent[c_index][1][1], u[start], sizeof(float) * N * (end-start));
 
 		close(pid_parent[c_index][0][0]);
 		close(pid_parent[c_index][1][1]);
