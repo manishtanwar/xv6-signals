@@ -29,25 +29,22 @@ int main(int argc, char *argv[])
 	float u[N][N];
 	float w[N][N];
 
-	int pid_acorss1[P-1][2];
-	int pid_acorss2[P-1][2];
-	int pid_parent[2*P][2];
+	int pid_acorss[P-1][2][2];
+	int pid_parent[P][2][2];
 
-	for(i=0;i<P-1;i++){
-		if(pipe(pid_acorss1[i]) < 0){
-			fprintf(stderr, "pipe error\n");
-			return 1;
-		}
-		if(pipe(pid_acorss2[i]) < 0){
-			fprintf(stderr, "pipe error\n");
-			return 1;
-		}
-	}
-	for(i=0;i<2*P;i++)
-		if(pipe(pid_parent[i]) < 0){
-			fprintf(stderr, "pipe error\n");
-			return 1;
-		}
+	for(i=0;i<P-1;i++)
+		for(j=0;j<2;j++)
+			if(pipe(pid_acorss[i][j]) < 0){
+				fprintf(stderr, "pipe error\n");
+				return 1;
+			}
+
+	for(i=0;i<P;i++)
+		for(j=0;j<2;j++)	
+			if(pipe(pid_parent[i][j]) < 0){
+				fprintf(stderr, "pipe error\n");
+				return 1;
+			}
 
 	int cid = -1;
 	int c_index = -1;
@@ -65,34 +62,55 @@ int main(int argc, char *argv[])
 
 	if(cid > 0){
 		// parent
-		for(i = 0; i < P; i++)
+		for(i=0;i<P-1;i++)
+			for(j=0;j<2;j++){
+				close(pid_acorss[i][j][0]);
+				close(pid_acorss[i][j][1]);
+			}
+		for(i=0;i<P;i++)
+			close(pid_parent[i][1][1]),
+			close(pid_parent[i][0][0]);
+
+		for(i=0;i<P;i++){
+			char msg[4];
+			read(pid_parent[i][1][0], msg, 4);
+			int index = (int)(*msg);
+			printf("%d\n",index);
+		}
+		for(i=0;i<P;i++){
+			char *msg = "Papa";
+			write(pid_parent[i][0][1], msg, 4);
+		}
+
+		for(i=0;i<P;i++)
+			close(pid_parent[i][0][1]),
+			close(pid_parent[i][1][0]),
 			wait(NULL);
 	}
 	else{
 		// child
-		for(i = 0; i < P-1; i++){
-			if(i > 0 || c_index > 1){
-				close(pid_acorss1[i][0]);
-				close(pid_acorss1[i][1]);
+		for(i=0;i<P-1;i++)
+			for(j=0;j<2;j++){
+				close(pid_acorss[i][j][0]);
+				close(pid_acorss[i][j][1]);
 			}
-			close(pid_acorss2[i][0]);
-			close(pid_acorss2[i][1]);
-		}
+		for(i=0;i<P;i++)
+			if(i != c_index)
+			for(j=0;j<2;j++)
+				close(pid_parent[i][j][0]),
+				close(pid_parent[i][j][1]);
 
-		if(c_index == 0){
-			char *msg = "Hey!";
-			close(pid_acorss1[0][0]);
-			write(pid_acorss1[0][1], msg, 4);
-			printf("send done\n");
-			close(pid_acorss1[0][1]);
-		}
-		else if(c_index == 1){
-			close(pid_acorss1[0][1]);
-			char msg[4];
-			read(pid_acorss1[0][0], msg, 4);
-			printf("recv done : %s\n",msg);
-			close(pid_acorss1[0][0]);
-		}
+		close(pid_parent[c_index][0][1]);
+		close(pid_parent[c_index][1][0]);
+
+		write(pid_parent[c_index][1][1], (char *)(&c_index), 4);
+		char msg[4];
+
+		read(pid_parent[c_index][0][0], msg, 4);
+		printf("%s\n", msg);
+
+		close(pid_parent[c_index][0][0]);
+		close(pid_parent[c_index][1][1]);
 	}
 	exit(0);
 
