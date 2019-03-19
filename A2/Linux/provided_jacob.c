@@ -38,20 +38,16 @@ int main(int argc, char *argv[])
 	for(;;){
 		diff = 0.0;
 		for(i =1 ; i < N-1; i++){
-			float local_diff = 0.0;
 			for(j =1 ; j < N-1; j++){
 				w[i][j] = ( u[i-1][j] + u[i+1][j]+
 					    u[i][j-1] + u[i][j+1])/4.0;
-				if( fabsm(w[i][j] - u[i][j]) > local_diff )
-					local_diff = fabsm(w[i][j]- u[i][j]);	
+				if( fabsm(w[i][j] - u[i][j]) > diff )
+					diff = fabsm(w[i][j]- u[i][j]);	
 			}
-			if(diff < local_diff) diff = local_diff;
-			printf("%d - %f\n",i-1,local_diff);
 		}
 	    count++;
 	       
 		if(diff<= E || count > L){ 
-			printf("%d\n", count);
 			break;
 		}
 	
