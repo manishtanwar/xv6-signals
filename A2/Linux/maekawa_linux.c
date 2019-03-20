@@ -84,12 +84,20 @@ int sqrtP = 0;
 // subset of each process
 int lSi;
 int *status;
+int *subset;
+
+int get_proc_type(int pid){
+	if(pid < P1) return 1;
+	else if(pid < P2) return 2;
+	return 3;	
+}
 
 int main(int argc, char *argv[])
 {
 	int i,j;
 	scanf("%d%d%d%d",&P,&P1,&P2,&P3);
-	while(sqrtP++){
+	while(1){
+		sqrtP++;
 		if(sqrtP * sqrtP == P) break;
 	}
 	lSi = 2*sqrtP - 1;
@@ -142,12 +150,63 @@ int main(int argc, char *argv[])
 	// -----------------------------------------
 	if(cid > 0){
 		// parent
-		pid = P-1;	
+		pid = P-1;
 	}
 
-	printf("%d\n",pid);
+	int proc_type = get_proc_type(pid);
 
+	subset = (int *)malloc(sizeof(int) * lSi);
+	int bound = (pid / sqrtP) * sqrtP;
 
+	i = 0;
+	j = pid;
+	while(j >= 0) subset[i++] = j, j -= sqrtP;
+	j = pid + sqrtP;
+	while(j < P) subset[i++] = j, j += sqrtP;
+	j = pid - 1;
+	while(j >= bound) subset[i++] = j, j--;
+	j = pid + 1;
+	while(j <= bound+sqrtP) subset[i++] = j, j++;
+
+	// ---- debug ----
+	printf("pid : %d\n",pid);
+	fflush(stdout);
+	// ---------------
+
+	// // Closing unnecessary pipes
+	for(i=0;i<P;i++){
+		if(i != pid) close(pipe_[i][0]);
+	}
+
+	msg initial_msg = {REQUEST, pid, ++max_timestamp};
+	msg i_am_done_msg = {IAMDONE, pid, -1};
+
+	if(proc_type == 1){
+		write(pipe_[0][1], &i_am_done_msg, sizeof(msg));
+	}
+	else{
+		for(i=0;i<lSi;i++)
+			write(pipe_[subset[i]][1], &initial_msg, sizeof(msg));
+	}
+
+	int done_cnt = 0;
+	while(1){
+		if(done_cnt == P) break;
+	}
+
+	if(pid == 0){
+		msg kill_msg = {KILL, pid, -1};
+		for(i=0;i<P;i++){
+			if(i != pid) write(pipe_[i][1], &kill_msg, sizeof(msg));
+		}
+	}
+
+	for(i=0;i<P;i++){
+		if(i == pid) close(pipe_[i][0]);
+		close(pipe_[i][1]);
+	}
+
+	free(subset);
 	free(status);
 	free(wq.arr);
 	free(iq.arr);
