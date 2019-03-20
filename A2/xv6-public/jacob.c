@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 {
 	char *filename;
 	filename = "assig2a.inp";
+
 	file_d = open(filename, 0);
 	int N,P,L;
 	float E,T;
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
 	P = readUint();
 	L = readUint();
 	
-	printf(1, "%d %d %d %d %d\n",N,(int)(1000000.0 * E),(int)(10000.0 * T),P,L);
+	// printf(1, "%d %d %d %d %d\n",N,(int)(1000000.0 * E),(int)(10000.0 * T),P,L);
 	if(P > N-2) P = N-2;
 
 	float diff;
