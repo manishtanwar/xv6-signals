@@ -46,12 +46,12 @@ int main(int argc, char *argv[])
 					local_diff = fabsm(w[i][j]- u[i][j]);	
 			}
 			if(diff < local_diff) diff = local_diff;
-			printf("%d - %f\n",i-1,local_diff);
+			// printf("%d - %f\n",i-1,local_diff);
 		}
 	    count++;
 	       
 		if(diff<= E || count > L){ 
-			printf("%d\n", count);
+			// printf("%d\n", count);
 			break;
 		}
 	
@@ -61,8 +61,11 @@ int main(int argc, char *argv[])
 
 	for(i =0; i <N; i++){
 		for(j = 0; j<N; j++)
-			printf("%d\t",((int)u[i][j]));
+			printf("%d ",((int)u[i][j]));
 		printf("\n");
 	}
+	// ---- debug ----
+	printf("no. of iterations : %d\n",count);
+	// ---------------
 	exit(0);
 }
