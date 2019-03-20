@@ -4,12 +4,6 @@
 #include <stdlib.h>
 #include<sys/wait.h>
 
-// #define N 11
-// #define E 0.00001
-// #define T 100.0
-// #define P 6
-// #define L 20000
-
 float fabsm(float a){
 	if(a<0)
 	return -1*a;
@@ -17,14 +11,14 @@ return a;
 }
 
 void print(int n, float* u, int c_index, int sr){
-	// if(sr) printf("recv\n");
-	// else printf("send\n");
-	// printf("index : %d ",c_index);
-	// int i;
-	// for(i=0;i<n;i++)
-	// 	printf("%.2f ",*(u+i));
-	// printf("\n");
-	// fflush(stdout);
+	if(sr) printf("recv\n");
+	else printf("send\n");
+	printf("index : %d ",c_index);
+	int i;
+	for(i=0;i<n;i++)
+		printf("%.2f ",*(u+i));
+	printf("\n");
+	fflush(stdout);
 }
 
 int main(int argc, char *argv[])
