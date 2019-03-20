@@ -43,6 +43,38 @@ void allocQueue(priority_queue *q, int size){
 	q->arr = (msg *)malloc(size * sizeof(msg));
 }
 
+int cmp(msg a,msg b){
+	if(a.timestamp < b.timestamp)
+		return 1;
+	else if(a.timestamp == b.timestamp && a.pid < b.pid)
+		return 1;
+	return 0;
+}
+
+msg getTop(priority_queue *q){
+	// assumes q->size > 0(which is ensured)
+	int ind = 0, i;
+	msg ans = q->arr[0];
+	for(i=1;i<q->size;i++){
+		if(cmp(ans, q->arr[i])){
+			ans = q->arr[i];
+			ind = i;
+		}
+	}
+	for(i=ind;i<q->size-1;i++){
+		q->arr[i] = q->arr[i+1];
+	}
+	q->size--;
+
+	return ans;
+}
+
+void push(priority_queue *q, msg *m){
+	// assumes queue won't get full(which is ensured)
+	q->arr[q->size] = *m;
+	q->size++;
+}
+
 // process index
 int pid = -1;
 // input
@@ -84,7 +116,6 @@ int main(int argc, char *argv[])
 	msg locking_req = {LOCKED_ELE, -1, -1};
 
 	int max_timestamp = 1;
-
 	//  --------------- Pipes: -------------------
 	int pipe_[P][2];
 
@@ -118,5 +149,7 @@ int main(int argc, char *argv[])
 
 
 	free(status);
+	free(wq.arr);
+	free(iq.arr);
 	exit(0);
 }
