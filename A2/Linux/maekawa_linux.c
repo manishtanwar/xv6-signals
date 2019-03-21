@@ -192,6 +192,13 @@ int main(int argc, char *argv[])
 	msg read_msg;
 	int done_cnt = 0;
 	int looping = 1;
+	int am_i_done = 0;
+	int inquire_sent_already = 0;
+	if(proc_type == 1) am_i_done = 1;
+
+	msg locked_msg = {LOCKED, pid, -1};
+	msg failed_msg = {FAILED, pid, -1};
+	msg inquire_msg = {INQUIRE, pid, -1};
 	
 	while(looping){
 		if(done_cnt == P) break;
@@ -200,7 +207,34 @@ int main(int argc, char *argv[])
 		switch (read_msg.type)
 		{
 			case REQUEST:{
-				
+				if(max_timestamp < read_msg.timestamp)
+					max_timestamp = read_msg.timestamp;
+
+				if(state == UNLOCKED_STATE){
+					state = LOCKED_STATE;
+					locking_req.pid = read_msg.pid;
+					inquire_sent_already = 0;
+					write(pipe_[read_msg.pid][1], &locked_msg, sizeof(msg));
+				}
+				else{
+					int precede_flag = 0;
+					if(cmp(locking_req, read_msg))
+						precede_flag = 1;
+					for(i = 0; i < wq->size-1; i++)
+						if(cmp(wq->arr[i], read_msg))
+							precede_flag = 1;
+					push(&wq, &read_msg);
+
+					if(precede_flag){
+						write(pipe_[read_msg.pid][1], &failed_msg, sizeof(msg));
+					}
+					else{
+						if(inquire_sent_already == 0){
+							inquire_sent_already = 1;
+							write(pipe_[locking_req.pid][1], &inquire_msg, sizeof(msg));
+						}
+					}
+				}
 				break;
 			}
 			case INQUIRE:{
