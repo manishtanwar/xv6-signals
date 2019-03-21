@@ -261,6 +261,9 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case LOCKED:{
+				status[read_msg.pid] = ST_LOCKED;
+				int all_locked = 1;
+				for(i=0;i<)
 				break;
 			}
 			case RELEASE:{
