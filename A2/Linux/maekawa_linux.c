@@ -189,9 +189,45 @@ int main(int argc, char *argv[])
 			write(pipe_[subset[i]][1], &initial_msg, sizeof(msg));
 	}
 
+	msg read_msg;
 	int done_cnt = 0;
-	while(1){
+	int looping = 1;
+	
+	while(looping){
 		if(done_cnt == P) break;
+		if(read(pipe_[pid][0], &read_msg, sizeof(msg)) <= 0) continue;
+
+		switch (read_msg.type)
+		{
+			case REQUEST:{
+				
+				break;
+			}
+			case INQUIRE:{
+				break;
+			}
+			case LOCKED:{
+				break;
+			}
+			case RELEASE:{
+				break;
+			}
+			case RELINQUISH:{
+				break;
+			}
+			case FAILED:{
+				break;
+			}
+			case IAMDONE:{
+				if(pid == 0) done_cnt++;
+				if(done_cnt == P) looping = 0;
+				break;
+			}
+			case KILL:{
+				looping = 0;
+				break;
+			}
+		}
 	}
 
 	if(pid == 0){
