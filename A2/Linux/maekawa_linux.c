@@ -228,8 +228,8 @@ int main(int argc, char *argv[])
 					int precede_flag = 0;
 					if(cmp(locking_req, read_msg))
 						precede_flag = 1;
-					for(i = 0; i < wq->size-1; i++)
-						if(cmp(wq->arr[i], read_msg))
+					for(i = 0; i < wq.size-1; i++)
+						if(cmp(wq.arr[i], read_msg))
 							precede_flag = 1;
 					push(&wq, &read_msg);
 
@@ -283,6 +283,15 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case RELEASE:{
+				if(wq.size==0){
+					state = UNLOCKED_STATE;
+				}
+				else{
+					msg top = getTop(&wq);
+					locking_req.pid = top.pid;
+					inquire_sent_already = 0;
+					write(pipe_[top.pid][1], &locked_msg, sizeof(msg));
+				}			
 				break;
 			}
 			case RELINQUISH:{
