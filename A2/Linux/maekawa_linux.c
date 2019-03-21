@@ -85,6 +85,7 @@ int sqrtP = 0;
 int lSi;
 int *status;
 int *subset;
+int *index_subset;
 
 int get_proc_type(int pid){
 	if(pid < P1) return 1;
@@ -108,8 +109,8 @@ int main(int argc, char *argv[])
 	}
 
 	// --------------- Data: -------------------
-	status = (int *)malloc(sizeof(int) * P);
-	for(i=0;i<P;i++)
+	status = (int *)malloc(sizeof(int) * lSi);
+	for(i=0;i<lSi;i++)
 		status[i] = ST_UNKNOWN;
 	
 	// waiting queue and inquire queue
@@ -156,6 +157,7 @@ int main(int argc, char *argv[])
 	int proc_type = get_proc_type(pid);
 
 	subset = (int *)malloc(sizeof(int) * lSi);
+	index_subset = (int *)malloc(sizeof(int) * P);
 	int bound = (pid / sqrtP) * sqrtP;
 
 	i = 0;
@@ -167,6 +169,10 @@ int main(int argc, char *argv[])
 	while(j >= bound) subset[i++] = j, j--;
 	j = pid + 1;
 	while(j <= bound+sqrtP) subset[i++] = j, j++;
+
+	for(i=0;i<lSi;i++){
+		index_subset[subset[i]] = i;	
+	}
 
 	// ---- debug ----
 	printf("pid : %d\n",pid);
@@ -200,6 +206,7 @@ int main(int argc, char *argv[])
 	msg failed_msg = {FAILED, pid, -1};
 	msg inquire_msg = {INQUIRE, pid, -1};
 	msg relinquish_msg = {RELINQUISH, pid, -1};
+	msg release_msg = {RELEASE, pid, -1};
 	
 	while(looping){
 		if(done_cnt == P) break;
@@ -244,16 +251,16 @@ int main(int argc, char *argv[])
 				int failed_avail = 0;
 				int unknown_avail = 0;
 
-				for(i = 0; i < P; i++){
-					if(status[i] == ST_FAILED)
+				for(i = 0; i < lSi; i++){
+					if(status[index_subset[i]] == ST_FAILED)
 						failed_avail = 1;
-					if(status[i] == ST_UNKNOWN)
+					if(status[index_subset[i]] == ST_UNKNOWN)
 						unknown_avail = 1;
 				}
 
 				if(failed_avail){
 					write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg));
-					status[read_msg.pid] = ST_FAILED;
+					status[index_subset[read_msg.pid]] = ST_FAILED;
 				}
 				else if(unknown_avail){
 					push(&iq, &read_msg);
@@ -261,9 +268,18 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case LOCKED:{
-				status[read_msg.pid] = ST_LOCKED;
+				status[index_subset[read_msg.pid]] = ST_LOCKED;
 				int all_locked = 1;
-				for(i=0;i<)
+				for(i=0;i<lSi;i++)
+					if(status[i] != ST_LOCKED) all_locked = 0;
+				
+				if(all_locked){
+					critical_section(pid);
+					am_i_done = 1;
+					write(pipe_[0][1], &i_am_done_msg, sizeof(msg));
+					for(i=0;i<lSi;i++)
+						write(pipe_[subset[i]][1], &release_msg, sizeof(msg));
+				}
 				break;
 			}
 			case RELEASE:{
