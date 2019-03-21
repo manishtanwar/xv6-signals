@@ -199,6 +199,7 @@ int main(int argc, char *argv[])
 	msg locked_msg = {LOCKED, pid, -1};
 	msg failed_msg = {FAILED, pid, -1};
 	msg inquire_msg = {INQUIRE, pid, -1};
+	msg relinquish_msg = {RELINQUISH, pid, -1};
 	
 	while(looping){
 		if(done_cnt == P) break;
@@ -238,6 +239,25 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case INQUIRE:{
+				if(am_i_done)
+					break;
+				int failed_avail = 0;
+				int unknown_avail = 0;
+
+				for(i = 0; i < P; i++){
+					if(status[i] == ST_FAILED)
+						failed_avail = 1;
+					if(status[i] == ST_UNKNOWN)
+						unknown_avail = 1;
+				}
+
+				if(failed_avail){
+					write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg));
+					status[read_msg.pid] = ST_FAILED;
+				}
+				else if(unknown_avail){
+					push(&iq, &read_msg);
+				}
 				break;
 			}
 			case LOCKED:{
