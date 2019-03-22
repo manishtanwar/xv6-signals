@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
 				if(state == UNLOCKED_STATE){
 					state = LOCKED_STATE;
 					locking_req.pid = read_msg.pid;
+					locking_req.timestamp = read_msg.timestamp;
 					inquire_sent_already = 0;
 					write(pipe_[read_msg.pid][1], &locked_msg, sizeof(msg));
 				}
@@ -289,6 +290,7 @@ int main(int argc, char *argv[])
 				else{
 					msg top = getTop(&wq);
 					locking_req.pid = top.pid;
+					locking_req.timestamp = top.timestamp;
 					inquire_sent_already = 0;
 					write(pipe_[top.pid][1], &locked_msg, sizeof(msg));
 				}			
