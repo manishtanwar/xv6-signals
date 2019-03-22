@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case RELINQUISH:{
-			
+				// bug : not updating the timestamp of locking element
 				break;
 			}
 			case FAILED:{
