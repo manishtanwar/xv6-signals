@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 	j = pid - 1;
 	while(j >= bound) subset[i++] = j, j--;
 	j = pid + 1;
-	while(j <= bound+sqrtP) subset[i++] = j, j++;
+	while(j < bound+sqrtP) subset[i++] = j, j++;
 
 	for(i=0;i<lSi;i++){
 		index_subset[subset[i]] = i;	
@@ -276,7 +276,10 @@ int main(int argc, char *argv[])
 					locking_req.pid = read_msg.pid;
 					locking_req.timestamp = read_msg.timestamp;
 					inquire_sent_already = 0;
-					write(pipe_[read_msg.pid][1], &locked_msg, sizeof(msg));
+					if(write(pipe_[read_msg.pid][1], &locked_msg, sizeof(msg)) <= 0){
+						fprintf(stderr, "write error\n");
+						return 1;	
+					}
 				}
 				else{
 					int precede_flag = 0;
@@ -306,27 +309,27 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case INQUIRE:{
-				if(am_i_done)
-					break;
-				int failed_avail = 0;
-				int unknown_avail = 0;
+				if(am_i_done == 0){
+					int failed_avail = 0;
+					int unknown_avail = 0;
 
-				for(i = 0; i < lSi; i++){
-					if(status[index_subset[i]] == ST_FAILED)
-						failed_avail = 1;
-					if(status[index_subset[i]] == ST_UNKNOWN)
-						unknown_avail = 1;
-				}
-
-				if(failed_avail){
-					if(write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg)) <= 0){
-						fprintf(stderr, "write error\n");
-						return 1;
+					for(i = 0; i < lSi; i++){
+						if(status[index_subset[i]] == ST_FAILED)
+							failed_avail = 1;
+						if(status[index_subset[i]] == ST_UNKNOWN)
+							unknown_avail = 1;
 					}
-					status[index_subset[read_msg.pid]] = ST_FAILED;
-				}
-				else if(unknown_avail){
-					push(&iq, &read_msg);
+
+					if(failed_avail){
+						if(write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg)) <= 0){
+							fprintf(stderr, "write error\n");
+							return 1;
+						}
+						status[index_subset[read_msg.pid]] = ST_FAILED;
+					}
+					else if(unknown_avail){
+						push(&iq, &read_msg);
+					}
 				}
 				break;
 			}
