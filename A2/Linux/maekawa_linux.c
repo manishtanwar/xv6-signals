@@ -87,10 +87,24 @@ int *status;
 int *subset;
 int *index_subset;
 
-int get_proc_type(int pid){
+int get_proc_type(){
 	if(pid < P1) return 1;
-	else if(pid < P2) return 2;
+	else if(pid < P1+P2) return 2;
 	return 3;	
+}
+
+void critical_section(int proc_type){
+	int a = 0;
+	if(proc_type == 2){
+		printf("%d acquired the lock at time %d.\n",pid,a);
+		// sleep(2);
+		printf("%d released the lock at time %d.\n",pid,a);
+
+	}
+	else{
+		printf("%d acquired the lock at time %d.\n",pid,a);
+		printf("%d released the lock at time %d.\n",pid,a);
+	}
 }
 
 int main(int argc, char *argv[])
@@ -128,7 +142,7 @@ int main(int argc, char *argv[])
 	//  --------------- Pipes: -------------------
 	int pipe_[P][2];
 
-	for(i=0;i<P-1;i++)
+	for(i=0;i<P;i++)
 		if(pipe(pipe_[i]) < 0){
 			fprintf(stderr, "pipe error\n");
 			return 1;
@@ -154,7 +168,7 @@ int main(int argc, char *argv[])
 		pid = P-1;
 	}
 
-	int proc_type = get_proc_type(pid);
+	int proc_type = get_proc_type();
 
 	subset = (int *)malloc(sizeof(int) * lSi);
 	index_subset = (int *)malloc(sizeof(int) * P);
@@ -175,8 +189,11 @@ int main(int argc, char *argv[])
 	}
 
 	// ---- debug ----
-	printf("pid : %d\n",pid);
-	fflush(stdout);
+	// printf("pid : %d\n",pid);
+	// for(i=0;i<lSi;i++)
+	// 	printf("%d ",subset[i]);
+	// printf("\n");
+	// fflush(stdout);
 	// ---------------
 
 	// // Closing unnecessary pipes
@@ -188,11 +205,18 @@ int main(int argc, char *argv[])
 	msg i_am_done_msg = {IAMDONE, pid, -1};
 
 	if(proc_type == 1){
-		write(pipe_[0][1], &i_am_done_msg, sizeof(msg));
+		if(write(pipe_[0][1], &i_am_done_msg, sizeof(msg)) <= 0){
+			fprintf(stderr, "write error\n");
+			return 1;
+		}
 	}
 	else{
-		for(i=0;i<lSi;i++)
-			write(pipe_[subset[i]][1], &initial_msg, sizeof(msg));
+		for(i=0;i<lSi;i++){
+			if(write(pipe_[subset[i]][1], &initial_msg, sizeof(msg)) <= 0){
+				fprintf(stderr, "write error\n");
+				return 1;
+			}
+		}
 	}
 
 	msg read_msg;
@@ -208,13 +232,34 @@ int main(int argc, char *argv[])
 	msg relinquish_msg = {RELINQUISH, pid, -1};
 	msg release_msg = {RELEASE, pid, -1};
 	
+	// ---- debug ----
+	// printf("pid : %d\n", pid);
+	// fflush(stdout);
+	// ---------------
+
 	while(looping){
 		if(done_cnt == P) break;
+		// ---- debug ----
+		// if(pid == 2){
+		// 	printf("pid : %d\n", pid);
+		// 	fflush(stdout);
+		// }
+		// ---------------
 		if(read(pipe_[pid][0], &read_msg, sizeof(msg)) <= 0) continue;
-
+		
+		// ---- debug ----
+		printf("pid : %d, type : %d\n", pid, read_msg.type);
+		fflush(stdout);
+		// ---------------
+		
 		switch (read_msg.type)
 		{
 			case REQUEST:{
+				// ---- debug ----
+				// printf("pid : %d, sender : %d\n", pid, read_msg.pid);
+				// fflush(stdout);
+				// ---------------
+
 				if(max_timestamp < read_msg.timestamp)
 					max_timestamp = read_msg.timestamp;
 
@@ -235,12 +280,18 @@ int main(int argc, char *argv[])
 					push(&wq, &read_msg);
 
 					if(precede_flag){
-						write(pipe_[read_msg.pid][1], &failed_msg, sizeof(msg));
+						if(write(pipe_[read_msg.pid][1], &failed_msg, sizeof(msg)) <= 0){
+							fprintf(stderr, "write error\n");
+							return 1;
+						}
 					}
 					else{
 						if(inquire_sent_already == 0){
 							inquire_sent_already = 1;
-							write(pipe_[locking_req.pid][1], &inquire_msg, sizeof(msg));
+							if(write(pipe_[locking_req.pid][1], &inquire_msg, sizeof(msg)) <= 0){
+								fprintf(stderr, "write error\n");
+								return 1;
+							}
 						}
 					}
 				}
@@ -260,7 +311,10 @@ int main(int argc, char *argv[])
 				}
 
 				if(failed_avail){
-					write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg));
+					if(write(pipe_[read_msg.pid][1], &relinquish_msg, sizeof(msg)) <= 0){
+						fprintf(stderr, "write error\n");
+						return 1;
+					}
 					status[index_subset[read_msg.pid]] = ST_FAILED;
 				}
 				else if(unknown_avail){
@@ -275,11 +329,18 @@ int main(int argc, char *argv[])
 					if(status[i] != ST_LOCKED) all_locked = 0;
 				
 				if(all_locked){
-					critical_section(pid);
+					critical_section(proc_type);
 					am_i_done = 1;
-					write(pipe_[0][1], &i_am_done_msg, sizeof(msg));
-					for(i=0;i<lSi;i++)
-						write(pipe_[subset[i]][1], &release_msg, sizeof(msg));
+					if(write(pipe_[0][1], &i_am_done_msg, sizeof(msg)) <= 0){
+						fprintf(stderr, "write error\n");
+						return 1;
+					}
+					for(i=0;i<lSi;i++){
+						if(write(pipe_[subset[i]][1], &release_msg, sizeof(msg)) <= 0){
+							fprintf(stderr, "write error\n");
+							return 1;
+						}
+					}
 				}
 				break;
 			}
@@ -292,7 +353,10 @@ int main(int argc, char *argv[])
 					locking_req.pid = top.pid;
 					locking_req.timestamp = top.timestamp;
 					inquire_sent_already = 0;
-					write(pipe_[top.pid][1], &locked_msg, sizeof(msg));
+					if(write(pipe_[top.pid][1], &locked_msg, sizeof(msg)) <= 0){
+						fprintf(stderr, "write error\n");
+						return 1;
+					}
 				}			
 				break;
 			}
@@ -306,13 +370,19 @@ int main(int argc, char *argv[])
 				locking_req.pid = top.pid;
 				locking_req.timestamp = top.timestamp;
 				inquire_sent_already = 0;
-				write(pipe_[top.pid][1], &locked_msg, sizeof(msg));
+				if(write(pipe_[top.pid][1], &locked_msg, sizeof(msg)) <= 0){
+					fprintf(stderr, "write error\n");
+					return 1;
+				}
 				break;
 			}
 			case FAILED:{
 				status[index_subset[read_msg.pid]] = ST_FAILED;
 				for(i=0;i<iq.size;i++){
-					write(pipe_[iq.arr[i].pid][1], &relinquish_msg, sizeof(msg));
+					if(write(pipe_[iq.arr[i].pid][1], &relinquish_msg, sizeof(msg)) <= 0){
+						fprintf(stderr, "write error\n");
+						return 1;
+					}
 					status[index_subset[iq.arr[i].pid]] = ST_FAILED;
 				}
 				iq.size = 0;
@@ -330,10 +400,20 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// ---- debug ----
+	printf("pid : %d\n",pid);
+	fflush(stdout);
+	// ---------------
+
 	if(pid == 0){
 		msg kill_msg = {KILL, pid, -1};
 		for(i=0;i<P;i++){
-			if(i != pid) write(pipe_[i][1], &kill_msg, sizeof(msg));
+			if(i != pid){
+				if(write(pipe_[i][1], &kill_msg, sizeof(msg)) <= 0){
+					fprintf(stderr, "write error\n");
+					return 1;
+				}
+			}
 		}
 	}
 
@@ -346,5 +426,11 @@ int main(int argc, char *argv[])
 	free(status);
 	free(wq.arr);
 	free(iq.arr);
+
+	if(pid == P-1){
+		for(i=0;i<P-1;i++)
+			wait(NULL);
+	}
+
 	exit(0);
 }
