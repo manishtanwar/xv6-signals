@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <time.h>
 
 // msg types:
 #define REQUEST 		1
@@ -57,16 +58,16 @@ msg getTop(priority_queue *q){
 	// assumes q->size > 0(which is ensured)
 	int ind = 0, i;
 	msg ans = q->arr[0];
-	printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[0].pid, q->arr[0].timestamp);
+	// printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[0].pid, q->arr[0].timestamp);
 	for(i=1;i<q->size;i++){
-		printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[i].pid, q->arr[i].timestamp);
+		// printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[i].pid, q->arr[i].timestamp);
 		if(!cmp(ans, q->arr[i])){
 			ans = q->arr[i];
 			ind = i;
 		}
 	}
-	printf("pid : %d, pq.size : %d, chosen_pid : %d, \n", pid, q->size, ans.pid);
-	fflush(stdout);
+	// printf("pid : %d, pq.size : %d, chosen_pid : %d, \n", pid, q->size, ans.pid);
+	// fflush(stdout);
 
 	for(i=ind;i<q->size-1;i++){
 		q->arr[i] = q->arr[i+1];
@@ -99,16 +100,16 @@ int get_proc_type(){
 }
 
 void critical_section(int proc_type){
-	int a = 0;
+	int proc_id = getpid();
 	if(proc_type == 2){
-		printf("%d acquired the lock at time %d.\n",pid,a);
-		// sleep(2);
-		printf("%d released the lock at time %d.\n",pid,a);
+		printf("%d acquired the lock at time %lu.\n",proc_id,time(NULL));
+		sleep(2);
+		printf("%d released the lock at time %lu.\n",proc_id,time(NULL));
 
 	}
 	else{
-		printf("%d acquired the lock at time %d.\n",pid,a);
-		printf("%d released the lock at time %d.\n",pid,a);
+		printf("%d acquired the lock at time %lu.\n",proc_id,time(NULL));
+		printf("%d released the lock at time %lu.\n",proc_id,time(NULL));
 	}
 }
 
@@ -256,8 +257,8 @@ int main(int argc, char *argv[])
 		// ---- debug ----
 		// printf("pid : %d => state : %d, locking_req : %d\n", pid, state,locking_req.pid);
 		// fflush(stdout);
-		printf("pid : %d, type : %d, sender : %d\n",pid,read_msg.type, read_msg.pid);
-		fflush(stdout);
+		// printf("pid : %d, type : %d, sender : %d\n",pid,read_msg.type, read_msg.pid);
+		// fflush(stdout);
 		// ---------------
 		
 		switch (read_msg.type)
