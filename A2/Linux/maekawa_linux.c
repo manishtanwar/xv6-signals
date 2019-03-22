@@ -256,8 +256,8 @@ int main(int argc, char *argv[])
 		// ---- debug ----
 		// printf("pid : %d => state : %d, locking_req : %d\n", pid, state,locking_req.pid);
 		// fflush(stdout);
-		// printf("pid : %d, type : %d, sender : %d\n",pid,read_msg.type, read_msg.pid);
-		// fflush(stdout);
+		printf("pid : %d, type : %d, sender : %d\n",pid,read_msg.type, read_msg.pid);
+		fflush(stdout);
 		// ---------------
 		
 		switch (read_msg.type)
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 					int precede_flag = 0;
 					if(cmp(locking_req, read_msg))
 						precede_flag = 1;
-					for(i = 0; i < wq.size-1; i++)
+					for(i = 0; i < wq.size; i++)
 						if(cmp(wq.arr[i], read_msg))
 							precede_flag = 1;
 					push(&wq, &read_msg);
@@ -348,6 +348,7 @@ int main(int argc, char *argv[])
 				if(all_locked){
 					critical_section(proc_type);
 					am_i_done = 1;
+					iq.size = 0;
 					if(write(pipe_[0][1], &i_am_done_msg, sizeof(msg)) <= 0){
 						fprintf(stderr, "write error\n");
 						return 1;
@@ -426,8 +427,8 @@ int main(int argc, char *argv[])
 	}
 
 	// ---- debug ----
-	printf("pid : %d\n",pid);
-	fflush(stdout);
+	// printf("pid : %d\n",pid);
+	// fflush(stdout);
 	// ---------------
 
 	if(pid == 0){
