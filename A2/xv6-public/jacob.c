@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	L = readUint();
 	
 	// printf(1, "%d %d %d %d %d\n",N,(int)(1000000.0 * E),(int)(10000.0 * T),P,L);
-	if(P > N-2) P = N-2;
+	// if(P > N-2) P = N-2;
 
 	float diff;
 	int i,j;
@@ -78,6 +78,19 @@ int main(int argc, char *argv[])
 	mean /= (4.0 * N);
 	for (i = 1; i < N-1; i++ )
 		for ( j= 1; j < N-1; j++) u[i][j] = mean;
+
+	if(N <= 2){
+		P = 0;
+		for(i =0; i <N; i++){
+			for(i =0; i <N; i++){
+				for(j = 0; j<N; j++)
+					printf(1, "%d ",((int)u[i][j]));
+				printf(1, "\n");
+			}
+		}
+		exit();
+	}
+	else if(P > N-2) P = N-2;
 
 	//  --------------- Pipes: -------------------
 	int pipe_across[P-1][2][2];
@@ -169,7 +182,7 @@ int main(int argc, char *argv[])
 		}
 
 		// ---- debug ----
-		printf(1, "no. of iterations : %d\n",count);
+		// printf(1, "no. of iterations : %d\n",count);
 		// ---------------
 
 		for(i=0;i<P;i++)

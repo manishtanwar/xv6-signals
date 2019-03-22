@@ -1,8 +1,13 @@
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include<sys/wait.h>
+#include "types.h"
+#include "stat.h"
+#include "user.h"
+
+
+// #define N 11
+// #define E 0.00001
+// #define T 100.0
+// #define P 6
+// #define L 20000
 
 float fabsm(float a){
 	if(a<0)
@@ -10,24 +15,53 @@ float fabsm(float a){
 return a;
 }
 
-void print(int n, float* u, int c_index, int sr){
-	if(sr) printf("recv\n");
-	else printf("send\n");
-	printf("index : %d ",c_index);
-	int i;
-	for(i=0;i<n;i++)
-		printf("%.2f ",*(u+i));
-	printf("\n");
-	fflush(stdout);
+int file_d;
+
+// read unsigned int
+int readUint(){
+	int N = 0;
+	char c;
+	while(read(file_d,(void *)(&c),sizeof(char)) > 0){
+		if(c == '\n') break;
+		N = 10*N + (c-'0');
+	}
+	return N;
+}
+
+// read positive floats
+float readFloat(){
+	float N = 0.0;
+	float a = 1.0;
+	int flag = 0;
+	char c;
+	while(read(file_d,(void *)(&c),sizeof(char)) > 0){
+		if(c == '\n') break;
+		if(c == '.'){
+			flag = 1; continue;
+		}
+		N = 10.0 * N + (float)(c-'0');
+		if(flag) a *= 10.0;
+	}
+	N /= a;
+	return N;
 }
 
 int main(int argc, char *argv[])
 {
+	char *filename;
+	filename = "assig2a.inp";
+
+	file_d = open(filename, 0);
 	int N,P,L;
 	float E,T;
-
-	scanf("%d%f%f%d%d",&N, &E, &T, &P, &L);
-	if(P > N-2) P = N-2;
+	N = readUint();
+	E = readFloat();
+	T = readFloat();
+	P = readUint();
+	L = readUint();
+	
+	// printf(1, "%d %d %d %d %d\n",N,(int)(1000000.0 * E),(int)(10000.0 * T),P,L);
+	// if(P > N-2) P = N-2;
 
 	float diff;
 	int i,j;
@@ -45,6 +79,19 @@ int main(int argc, char *argv[])
 	for (i = 1; i < N-1; i++ )
 		for ( j= 1; j < N-1; j++) u[i][j] = mean;
 
+	if(N <= 2){
+		P = 0;
+		for(i =0; i <N; i++){
+			for(i =0; i <N; i++){
+				for(j = 0; j<N; j++)
+					printf(1, "%d ",((int)u[i][j]));
+				printf(1, "\n");
+			}
+		}
+		exit();
+	}
+	else if(P > N-2) P = N-2;
+
 	//  --------------- Pipes: -------------------
 	int pipe_across[P-1][2][2];
 	int pipe_parent[P][2][2];
@@ -52,14 +99,14 @@ int main(int argc, char *argv[])
 	for(i=0;i<P-1;i++)
 		for(j=0;j<2;j++)
 			if(pipe(pipe_across[i][j]) < 0){
-				fprintf(stderr, "pipe error\n");
+				printf(2, "pipe error\n");
 				return 1;
 			}
 
 	for(i=0;i<P;i++)
 		for(j=0;j<2;j++)	
 			if(pipe(pipe_parent[i][j]) < 0){
-				fprintf(stderr, "pipe error\n");
+				printf(2, "pipe error\n");
 				return 1;
 			}
 
@@ -68,7 +115,7 @@ int main(int argc, char *argv[])
 	for(i=0;i<P;i++){
 		cid = fork();
 		if(cid == -1){
-			fprintf(stderr, "fork error\n");
+			printf(2, "fork error\n");
 			return 1;
 		}
 		if(cid == 0){
@@ -112,15 +159,13 @@ int main(int argc, char *argv[])
 				break;
 			}
 			// ---- debug ----
-			// printf("%d\n",count);
-			// fflush(stdout);
+			// printf(1, "%d\n",count);
 			// ---------------
 		}
 
 		for(i=0;i<P;i++){
 			int start, end, extra;
 			int n = N-2;
-			int terminate = 0;
 			extra = n-(n/P)*P;
 			start = i * (n/P);
 			end = n/P + start;
@@ -132,19 +177,18 @@ int main(int argc, char *argv[])
 
 		for(i =0; i <N; i++){
 			for(j = 0; j<N; j++)
-				printf("%d ",((int)u[i][j]));
-			printf("\n");
+				printf(1, "%d ",((int)u[i][j]));
+			printf(1, "\n");
 		}
 
 		// ---- debug ----
-		printf("no. of iterations : %d\n",count);
-		fflush(stdout);
+		// printf(1, "no. of iterations : %d\n",count);
 		// ---------------
 
 		for(i=0;i<P;i++)
 			close(pipe_parent[i][0][1]),
 			close(pipe_parent[i][1][0]),
-			wait(NULL);
+			wait();
 	}
 
 	else{
@@ -180,8 +224,7 @@ int main(int argc, char *argv[])
 		start++; end++;
 		
 		// ---- debug ----
-		// printf("ind : %d, start : %d, end : %d\n", c_index, start, end);
-		// fflush(stdout);
+		// printf(1, "ind : %d, start : %d, end : %d\n", c_index, start, end)
 		// ---------------
 
 		for(;;){
@@ -196,8 +239,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			// ---- debug ----
-			// printf("id : %d, diff : %f\n",c_index, diff);
-			// fflush(stdout);
+			// printf(1, "id : %d, diff : %f\n",c_index, diff);
 			// ---------------
 			count++;
 			
@@ -232,12 +274,12 @@ int main(int argc, char *argv[])
 			close(pipe_across[c_index-1][0][0]),
 			close(pipe_across[c_index-1][1][1]);
 
-		// printf("id : %d\n",c_index);
+		// printf(1, "id : %d\n",c_index);
 		// for(i=start;i<end;i++){
 		// 	for(j=0;j<N;j++)
 		// 		printf("%d ",((int)u[i][j]));
 		// 	printf("\n");
 		// }
 	}
-	exit(0);
+	exit();	
 }
