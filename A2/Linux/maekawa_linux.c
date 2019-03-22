@@ -50,17 +50,24 @@ int cmp(msg a,msg b){
 		return 1;
 	return 0;
 }
+// process index
+int pid = -1;
 
 msg getTop(priority_queue *q){
 	// assumes q->size > 0(which is ensured)
 	int ind = 0, i;
 	msg ans = q->arr[0];
+	printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[0].pid, q->arr[0].timestamp);
 	for(i=1;i<q->size;i++){
-		if(cmp(ans, q->arr[i])){
+		printf("pq : pid : %d, pq_pid : %d, timestamp : %d\n", pid, q->arr[i].pid, q->arr[i].timestamp);
+		if(!cmp(ans, q->arr[i])){
 			ans = q->arr[i];
 			ind = i;
 		}
 	}
+	printf("pid : %d, pq.size : %d, chosen_pid : %d, \n", pid, q->size, ans.pid);
+	fflush(stdout);
+
 	for(i=ind;i<q->size-1;i++){
 		q->arr[i] = q->arr[i+1];
 	}
@@ -75,8 +82,6 @@ void push(priority_queue *q, msg *m){
 	q->size++;
 }
 
-// process index
-int pid = -1;
 // input
 int P,P1,P2,P3;
 int sqrtP = 0;
@@ -239,6 +244,7 @@ int main(int argc, char *argv[])
 
 	while(looping){
 		if(done_cnt == P) break;
+		// sleep(pid+1);
 		// ---- debug ----
 		// if(pid == 2){
 		// 	printf("pid : %d\n", pid);
@@ -248,8 +254,10 @@ int main(int argc, char *argv[])
 		if(read(pipe_[pid][0], &read_msg, sizeof(msg)) <= 0) continue;
 		
 		// ---- debug ----
-		printf("pid : %d, type : %d\n", pid, read_msg.type);
-		fflush(stdout);
+		// printf("pid : %d => state : %d, locking_req : %d\n", pid, state,locking_req.pid);
+		// fflush(stdout);
+		// printf("pid : %d, type : %d, sender : %d\n",pid,read_msg.type, read_msg.pid);
+		// fflush(stdout);
 		// ---------------
 		
 		switch (read_msg.type)
@@ -328,6 +336,15 @@ int main(int argc, char *argv[])
 				for(i=0;i<lSi;i++)
 					if(status[i] != ST_LOCKED) all_locked = 0;
 				
+				// ---- debug ----
+				// printf("pid : %d, all : %d\n",pid,all_locked);
+				// for(i=0;i<lSi;i++){
+				// 	printf("status : %d ", status[i]);
+				// }
+				// printf("\n");
+				// fflush(stdout);
+				// ---------------
+
 				if(all_locked){
 					critical_section(proc_type);
 					am_i_done = 1;
@@ -345,7 +362,15 @@ int main(int argc, char *argv[])
 				break;
 			}
 			case RELEASE:{
+				// ---- debug ----
+				// printf("pid : %d, sender : %d\n", pid, read_msg.pid);
+				// fflush(stdout);
+				// ---------------
 				if(wq.size==0){
+					// ---- debug ----
+					// printf("pid : %d\n",pid);
+					// fflush(stdout);
+					// ---------------
 					state = UNLOCKED_STATE;
 				}
 				else{
@@ -357,7 +382,7 @@ int main(int argc, char *argv[])
 						fprintf(stderr, "write error\n");
 						return 1;
 					}
-				}			
+				}		
 				break;
 			}
 			case RELINQUISH:{
