@@ -298,9 +298,24 @@ int main(int argc, char *argv[])
 			}
 			case RELINQUISH:{
 				// bug : not updating the timestamp of locking element
+				msg top = getTop(&wq);
+				locking_req.type = REQUEST;
+				push(&wq, &locking_req);
+				locking_req.type = LOCKED_ELE;
+
+				locking_req.pid = top.pid;
+				locking_req.timestamp = top.timestamp;
+				inquire_sent_already = 0;
+				write(pipe_[top.pid][1], &locked_msg, sizeof(msg));
 				break;
 			}
 			case FAILED:{
+				status[index_subset[read_msg.pid]] = ST_FAILED;
+				for(i=0;i<iq.size;i++){
+					write(pipe_[iq.arr[i].pid][1], &relinquish_msg, sizeof(msg));
+					status[index_subset[iq.arr[i].pid]] = ST_FAILED;
+				}
+				iq.size = 0;
 				break;
 			}
 			case IAMDONE:{
