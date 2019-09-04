@@ -1,3 +1,0 @@
-zvikadori
-asafch
-shradhash
